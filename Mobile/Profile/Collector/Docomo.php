@@ -5,7 +5,6 @@ require_once dirname(__FILE__) . '.php';
 class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
 {
     var $base_url = 'http://www.nttdocomo.co.jp/';
-    //var $base_url = 'http://www.colinux/~kawakami/docomo/';
 
     var $spec_url = 'binary/pdf/service/imode/make/content/spec/imode_spec.pdf';
 
