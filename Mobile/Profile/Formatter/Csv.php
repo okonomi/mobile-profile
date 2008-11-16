@@ -1,8 +1,8 @@
 <?php
 
-class Mobile_Profile_Format_Csv
+class Mobile_Profile_Formatter_Csv
 {
-    function Mobile_Profile_Format_Csv()
+    function Mobile_Profile_Formatter_Csv()
     {
     }
 

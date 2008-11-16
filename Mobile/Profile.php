@@ -27,8 +27,8 @@ class Mobile_Profile
     {
         $format = ucfirst(strtolower($format));
 
-        $include_file = 'Profile/Format/'.$format.'.php';
-        $class_name   = 'Mobile_Profile_Format_'.$format;
+        $include_file = 'Profile/Formatter/'.$format.'.php';
+        $class_name   = 'Mobile_Profile_Formatter_'.$format;
 
         include_once dirname(__FILE__) . '/' . $include_file;
         $module = new $class_name();

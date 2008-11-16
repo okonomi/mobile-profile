@@ -1,7 +1,7 @@
 <?php
-class Mobile_Profile_Format_Array
+class Mobile_Profile_Formatter_Array
 {
-    function Mobile_Profile_Format_Array()
+    function Mobile_Profile_Formatter_Array()
     {
     }
 

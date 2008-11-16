@@ -1,9 +1,9 @@
 <?php
 require_once 'Console/Table.php';
 
-class Mobile_Profile_Format_Table
+class Mobile_Profile_Formatter_Table
 {
-    function Mobile_Profile_Format_Table()
+    function Mobile_Profile_Formatter_Table()
     {
     }
 
