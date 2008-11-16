@@ -18,15 +18,6 @@ class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector
         'decomail' => 'http://www.au.kddi.com/cgi-bin/modellist/allList.cgi?ServiceID=106',
     );
 
-    var $info_prop_list = array(
-        'device',
-        'model',
-        'browser_w',
-        'browser_h',
-        'appli',
-        'flash_ver',
-    );
-
     var $device_map = null;
 
     var $device_model_jointed = array ();

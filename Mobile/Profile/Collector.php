@@ -9,11 +9,7 @@ class Mobile_Profile_Collector
 
     var $url_list = array();
 
-    var $info_header = array ();
-
     var $info_data = array ();
-
-    var $info_prop_list = array();
 
     var $options = array();
 
@@ -27,10 +23,7 @@ class Mobile_Profile_Collector
     {
         $this->_correctProfileInfo();
 
-        return array (
-            'header' => $this->info_header,
-            'data'   => $this->info_data,
-        );
+        return $this->info_data;
     }
 
     function _correctProfileInfo()
@@ -66,9 +59,6 @@ class Mobile_Profile_Collector
                 $this->$func($content);
             }
         }
-
-        //$this->info_header = array_keys(reset($profile_info));
-        $this->info_header = $this->info_prop_list;
     }
 
     function &_getProfileInfo($name, $create = true)

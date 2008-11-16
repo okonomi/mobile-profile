@@ -26,16 +26,6 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
 /*         ), */
     );
 
-    var $info_prop_list = array(
-        'device',
-        'model',
-        'machiuke_w',
-        'machiuke_h',
-        //'browser_w',
-        //'browser_h',
-        //'color_num',
-    );
-
     var $imode_spec = null;
 
 

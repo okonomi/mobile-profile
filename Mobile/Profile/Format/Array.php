@@ -9,7 +9,7 @@ class Mobile_Profile_Format_Array
     {
         $result = array();
 
-        foreach ($info['data'] as $row) {
+        foreach ($info as $row) {
             $result[] = $row->getPropArray();
         }
 

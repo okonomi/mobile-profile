@@ -8,8 +8,7 @@ class Mobile_Profile_Format_Csv
 
     function format($info)
     {
-        $result = $this->escapeCSV($info['header']) . "\r\n";
-        foreach ($info['data'] as $row) {
+        foreach ($info as $row) {
             $result .= $this->escapeCSV($row->getPropArray()) . "\r\n";
         }
 

@@ -10,16 +10,6 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
 /*         'kisekae'  => 'http://mb.softbank.jp/mb/service/3G/contents/change_arrange/', */
     );
 
-    var $info_prop_list = array(
-        'device',
-        'model',
-        'display_w',
-        'display_h',
-        'browser_w',
-        'browser_h',
-        'col_num',
-    );
-
 
     function _correctProfileInfo()
     {
