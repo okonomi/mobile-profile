@@ -16,9 +16,8 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
         // 機種情報
         $csv   = $this->_getDeviceSpecList();
         $csv   = mb_convert_encoding($csv, 'UTF-8', 'sjis-win');
-        $specs = $this->explodeCSV($csv);
+        $specs = $this->_explodeCSV($csv);
 
-//        print_r($specs);
         unset($specs[0]);
 
 
@@ -320,107 +319,46 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
         return $model;
     }
 
-    /**
-     * CSV形式の文字列を配列に分割する
-     *
-     * @accesspublic
-     * @paramstring$csvCSV形式の文字列(1行分)
-     * @paramstring$delimiterフィールドの区切り文字
-     * @returnmixed(array):分割結果 Ethna_Error:エラー(行継続)
-     */
-    function explodeCSV($csv, $delimiter = ",")
+    function _explodeCSV($csv)
     {
-        $space_list = '';
-        foreach (array(" ", "\t", "\r", "\n") as $c) {
-            if ($c != $delimiter) {
-                $space_list .= $c;
-            }
-        }
+        /*
+          SoftBankのスペックCSVはちょっと特殊で
+           - 改行コードはCRLFで統一
+           - 値は必ずダブルクォートでくくられている
+          ので、それを前提とした処理になっています
+         */
 
-        $line_end = "";
-        if (preg_match("/([$space_list]+)\$/sS", $csv, $match)) {
-            $line_end = $match[1];
-        }
-        $csv = substr($csv, 0, strlen($csv)-strlen($line_end));
-        $csv .= ' ';
-
-        $field = '';
-        $retval = array();
-
-        $index = 0;
+        $index      = 0;
         $line_index = 0;
-        $csv_len = strlen($csv);
+        $csv_len    = strlen($csv);
+
+        $result = array();
+
         do {
-            // 1. skip leading spaces
-            if (preg_match("/^([$space_list]+)/sS", substr($csv, $index), $match)) {
+            if ($csv{$index} === '"') {
+                $inner_start = $index +1;
+                do {
+                    $index++;
+
+                    if ($index >= $csv_len || $csv{$index} === '"') {
+                        $result[$line_index][] = substr($csv, $inner_start, $index - $inner_start);
+                        $index++;
+                        break;
+                    }
+                } while(true);
+            } else if (preg_match("/^(\r\n)/", substr($csv, $index, 2), $match)) {
+                $line_index++;
                 $index += strlen($match[1]);
+            } else {
+                $index++;
             }
+
             if ($index >= $csv_len) {
                 break;
             }
-
-            // 2. read field
-            if ($csv{$index} == '"') {
-                // 2A. handle quote delimited field
-                $index++;
-                while ($index < $csv_len) {
-                    if ($csv{$index} == '"') {
-                        // handle double quote
-                        if ($csv{$index+1} == '"') {
-                            $field .= $csv{$index};
-                            $index += 2;
-                        } else {
-                            // must be end of string
-                            while ($csv{$index} != $delimiter && $csv{$index} != "\n" && $index < $csv_len) {
-                                $index++;
-                            }
-                            if ($csv{$index} == $delimiter || $csv{$index} == "\n") {
-                                $index++;
-                            }
-                            break;
-                        }
-                    } else {
-                        // normal character
-                        if (preg_match("/^([^\"]*)/S", substr($csv, $index), $match)) {
-                            $field .= $match[1];
-                            $index += strlen($match[1]);
-                        }
-
-                        if ($index == $csv_len) {
-                            $field = substr($field, 0, strlen($field)-1);
-                            $field .= $line_end;
-
-                            // request one more line
-                            return Ethna::raiseNotice(E_UTIL_CSV_CONTINUE);
-                        }
-                    }
-                }
-            } else {
-                // 2B. handle non-quoted field
-                if (preg_match("/^([^$delimiter\\n]*)/S", substr($csv, $index), $match)) {
-                    $field .= $match[1];
-                    $index += strlen($match[1]);
-                }
-
-                // remove trailing spaces
-                $field = preg_replace("/[$space_list]+\$/S", '', $field);
-                if ($csv{$index} == $delimiter) {
-                    $index++;
-                }
-            }
-
-            $retval[$line_index][] = $field;
-            $field = '';
-
-            // 行の終了
-            if (preg_match("/^(\r\n|\r|\n)/", substr($csv, $index -1, 1), $match)) {
-                $line_index++;
-            }
+        } while(true);
 
 
-
-        } while ($index < $csv_len);
-
-        return $retval;
+        return $result;
     }
 }
