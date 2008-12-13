@@ -6,10 +6,14 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
 {
     var $base_url = 'http://www.nttdocomo.co.jp/';
 
-    var $spec_url = 'binary/pdf/service/imode/make/content/spec/imode_spec.pdf';
-
     var $url_list = array (
         'useragent'   => 'service/imode/make/content/spec/useragent/index.html',
+        'series' => array(
+            'product/foma/style/index.html',
+            'product/foma/prime/index.html',
+            'product/foma/smart/index.html',
+            'product/foma/pro/index.html',
+        ),
         'display'     => 'service/imode/make/content/spec/screen_area/index.html',
         'appli'       => 'service/imode/make/content/spec/iappli/index.html',
         'flash'       => 'service/imode/make/content/spec/flash/index.html',
@@ -31,90 +35,100 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
 
     function _parseProfileInfo_Useragent($content)
     {
-        $encoding = mb_detect_encoding($content, 'ASCII,JIS,UTF-8,EUC-JP,SJIS');
-        $content  = mb_convert_encoding($content, 'UTF-8', $encoding);
-        $content  = mb_convert_kana($content, 'a');
+        $xml = simplexml_import_dom(@DOMDocument::loadHTML($content));
 
+        $tables = $xml->xpath('//table[@cellpadding="0"]');
+        foreach ($tables as $table) {
+            preg_match('/iモード対応HTML([\d\.]+)/', (string)$table['summary'], $match);
+            $html_version = $match[1];
 
-        $replace_list = array(
-            '(\n|\r|<BR[^>]*>)' => '',
-            '<span[^>]*>'       => '',
-            '</span>'           => '',
-            '<div[^>]*>'        => '',
-            '</div>'            => '',
-            '<font[^>]*>'       => '',
-            '</font>'           => '',
-            '&nbsp;'            => ' ',
-        );
-        foreach ($replace_list as $pattern => $replacement) {
-            $content = mb_eregi_replace($pattern, $replacement, $content, 'i');
-        }
+            $series = null;
+            foreach ($table->tr as $tr) {
+                // scope属性があるTDは表のヘッダ部分
+                if (isset($tr->td['scope'])) {
+                    // シリーズをリセット
+                    $series = null;
+                    continue;
+                }
 
-        $reg  = '';
-        $reg .= '(<A NAME="p\d+">iモード対応HTML([\d\.]+)[^>]*</A>)';
-        $reg .= '|';
-        $reg .= '(';
-        $reg .= '<TD[^>]*>\s*([a-z]+\d+[\w&;\+]*)(\s*\(([^\)]+)\))?(<a[^>]*><img[^>]*>\d*</a>)?</TD>';
-        $reg .= '((<td[^>]*>([^<]*|<a[^>]*>|</a>|<img[^>]*>)*</td>)+)';
-        $reg .= ')';
-        mb_ereg_search_init($content, $reg, 'i');
+                $tmp = array();
+                foreach ($tr->td as $td) {
+                    $tmp[] = (string)$td->span;
+                }
 
-        // 検索実行
-        $html = '';
-        $regex_result = array();
-        while ($ret = mb_ereg_search_regs()) {
-            if (!empty($ret[2])) {
-                $html = $ret[2];
-            } else {
-                $regex_result[] = array(
-                    'device' => $ret[4],
-                    'model'  => $ret[6],
-                    'html'   => $html,
-                    'ua'     => $ret[8],
+                // シリーズ
+                if (preg_match('/^(\d|FOMA)/i', $tmp[0])) {
+                    $series = array_shift($tmp);
+                }
+
+                // 端末名
+                $_device = array_shift($tmp);
+
+                $match = array();
+                preg_match('/([a-z]+\-?\d+[a-z]*[μ\+]?)(（(.*)）)?/iu', $_device, $match);
+
+                $device = $match[1];
+                if (isset($match[3])) {
+                    $model = $match[3];
+                } else {
+                    $model = $device;
+                }
+
+                // ユーザエージェント
+                $ua_list = '';
+                foreach ($tmp as $val) {
+                    $ua_list .= ' '.$val;
+                }
+
+                $generation_list = array(
+                    '1.0' => 'mova',
+                    '2.0' => 'FOMA',
                 );
+                if (preg_match('/DoCoMo\/([\d\.]+)(\/| )[\w\d\+\-]+(\/|\()c(\d+)/i', $ua_list, $match)) {
+                    $cache      = (int)$match[4];
+                    $generation = $generation_list[$match[1]];
+                } else {
+                    $cache      = 5;
+                    $generation = $generation_list['1.0'];
+                }
+
+
+                $device = $this->_normalizeDeviceName($device);
+                $info   =& $this->_getProfileInfo($device);
+
+                // 機種名
+                $info->setDeviceID($device);
+                // モデル名
+                $info->setModel($model);
+
+                // シリーズ
+                $info->set('series', $series);
+                // 世代
+                $info->set('generation', $generation);
+                // HTMLバージョン
+                $info->set('browser', 'html', $html_version);
+                // キャッシュサイズ
+                $info->set('browser', 'cache', $cache);
             }
         }
+    }
 
-        $generation_list = array(
-            '1.0' => 'mova',
-            '2.0' => 'FOMA',
-        );
+    function _parseProfileInfo_Series($content)
+    {
+        $xml = simplexml_import_dom(@DOMDocument::loadHTML($content));
 
-        foreach ($regex_result as $row) {
-            $device = $this->_normalizeDeviceName($row['device']);
-            $info   = & $this->_getProfileInfo($device);
+        // シリーズ名
+        $title = (string)$xml->head->title;
+        preg_match('/docomo (\w+) series/', $title, $match);
+        $series = $match[1];
 
-            // 機種名
-            $info->setDeviceID($device);
-
-            // モデル名
-            $model = $row['model'];
-            if (empty($model)) {
-                $model = $this->_normalizeModelName($row['device']);
+        $anchors = $xml->xpath('//div[@class="section"]/table/tr/td/div[@class="list-txt"]/div[@class="titlept02"]/h3/a');
+        foreach ($anchors as $anchor) {
+            $model = (string)$anchor;
+            $info =& $this->_getProfileInfoByModel($model, false);
+            if (!is_null($info)) {
+                $info->set('series', $series);
             }
-            $info->setModel($model);
-
-            // ユーザエージェント
-            $generation = '1.0';
-            $cache = 5;
-            $reg = 'DoCoMo/([\d\.]+)(\s|/)[\w\+]+((/|\()c(\d+))?';
-            mb_ereg_search_init($row['ua'], $reg, 'i');
-            while($ret = mb_ereg_search_regs()) {
-                if ((int)$generation < (int)$ret[1]){
-                    $generation = $ret[1];
-                }
-                if ($cache < $ret[5]) {
-                    $cache = (int)$ret[5];
-                }
-            }
-            $generation = $generation_list[$generation];
-
-            // 世代
-            $info->set('generation', $generation);
-            // HTMLバージョン
-            $info->set('browser', 'html', $row['html']);
-            // キャッシュサイズ
-            $info->set('browser', 'cache', $cache);
         }
     }
 
@@ -629,11 +643,12 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
 
     function _normalizeDeviceName($device)
     {
-        $device = html_entity_decode($device, ENT_NOQUOTES, 'UTF-8');
-        $device = htmlentities($device, ENT_NOQUOTES, 'UTF-8');
-        $device = mb_ereg_replace('&mu;', 'myu', $device);
+        /* $device = html_entity_decode($device, ENT_NOQUOTES, 'UTF-8'); */
+        /* $device = htmlentities($device, ENT_NOQUOTES, 'UTF-8'); */
+        $device = mb_ereg_replace('μ', 'myu', $device);
         $device = mb_ereg_replace('III', '3', $device);
         $device = mb_ereg_replace('II', '2', $device);
+        $device = mb_ereg_replace('\-', '', $device);
 
         return $device;
     }
@@ -704,7 +719,7 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
 
         file_put_contents($tmpfile, $content);
 
-        exec("pdftotext -raw -nopgbrk -eol unix {$tmpfile} {$outfile}");
+        exec("pdftotext -layout -nopgbrk -eol unix {$tmpfile} {$outfile}");
 
         $contents_type = array(
             'html',
@@ -717,7 +732,7 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
             'pdf',
             'charaden',
             'decomail',
-            'decoanime',
+            'decomeanime',
             'toruca',
             'ichannel',
             'emoji',
@@ -726,7 +741,7 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
             'menuicon',
             'kisekae',
             'machichara',
-            'iconcierge',
+            'iconcier',
             'barcode',
             'ssl',
             'drm',
@@ -737,12 +752,13 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
         $this->imode_spec = array();
 
 
-        $tmp = '';
         $lines = array();
-        $index = 0;
         while($line = fgets($fp, 1024)) {
-            $line = mb_ereg_replace('\r\n|\r|\n', '', $line);
-            $lines[] = $line;
+            if (preg_match('/\*\d+$/', $line)) {
+                $lines[count($lines) -1] .= ' '. $line;
+            } else {
+                $lines[] = $line;
+            }
         }
         fclose($fp);
 
@@ -750,31 +766,43 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
         unlink($tmpfile);
 
 
-        $data_list = array();
-        for ($i = 0; $i < count($lines); $i++) {
-            if (mb_ereg_match('^\*\d+$', $lines[$i])) {
-                $data_list[$i-1] = $lines[$i-1].$lines[$i].' '.$lines[$i+1];
-                $i++;
-            } elseif (mb_ereg_match('^.*\*\d+$', $lines[$i])) {
-                $data_list[$i] = $lines[$i].' '.$lines[$i+1];
-                $i++;
-            } else {
-                $data_list[$i] = $lines[$i];
+        foreach ($lines as $data) {
+            $data = mb_split('[\s　]+', $data);
+            if (reset($data) === '') {
+                array_shift($data);
             }
-        }
+            if (end($data) === '') {
+                array_pop($data);
+            }
+            if ($data[0] === 'FOMA') {
+                array_shift($data);
+                array_shift($data);
+            }
 
+            if (preg_match('/^[A-Z]{1,2}\-?\d+/', $data[0])) {
+                $device = array_shift($data);
 
-        $reg  = '';
-        $reg .= '([A-Z]{1,2}\d{3,4}[\w&;\+]*[^ \(\s]*)\s*(\(([^\)]+)\))?';
-        $reg .= '\s*(.*)';
+                if (preg_match('/^\(/', $data[0])) {
+                    $model = '';
+                    do {
+                        $model .= ' '.array_shift($data);
+                    } while (!preg_match('/\)$/', $model));
+                    $model = substr($model, 2, strlen($model) -3);
+                } else {
+                    $model = $device;
+                }
 
-        foreach ($data_list as $data) {
-            if (preg_match_all("/{$reg}$/", $data, $match)) {
-                $tmp = array_pad(mb_split(' ', $match[4][0]), count($contents_type), '');
+                if (count($data) >= count($contents_type)) {
+                    list ($data, $etc) = array_chunk($data, count($contents_type) -1);
+                    $data[] = implode(' ', $etc);
+                }
+
+                $tmp  = array_pad($data, count($contents_type), '');
                 $spec = array_combine($contents_type, $tmp);
+
                 $this->imode_spec[] = array(
-                    'device'   => $match[1][0],
-                    'model'    => $match[3][0],
+                    'device'   => $device,
+                    'model'    => $model,
                     'contents' => $spec,
                 );
             }

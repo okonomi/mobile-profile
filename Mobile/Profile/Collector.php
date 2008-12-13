@@ -86,6 +86,6 @@ class Mobile_Profile_Collector
             }
         }
 
-        return $this->_getProfileInfo($model);
+        return $this->_getProfileInfo($model, $create);
     }
 }
