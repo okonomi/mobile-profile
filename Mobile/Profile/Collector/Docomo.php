@@ -134,159 +134,108 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
 
     function _parseProfileInfo_Display($content)
     {
-        $encoding = mb_detect_encoding($content, 'ASCII,JIS,UTF-8,EUC-JP,SJIS');
-        $content  = mb_convert_encoding($content, 'UTF-8', $encoding);
-        $content  = mb_convert_kana($content, 'a');
+        $xml = simplexml_import_dom(@DOMDocument::loadHTML($content));
 
-        $replace_list = array(
-            '(\n|\r|<BR[^>]*>)' => '',
-            '<span[^>]*>'       => '',
-            '</span>'           => '',
-            '<font[^>]*>'       => '',
-            '</font>'           => '',
-        );
-        foreach ($replace_list as $pattern => $replacement) {
-            $content = mb_eregi_replace($pattern, $replacement, $content, 'i');
-        }
-
-        $reg  = '';
-        $reg .= '<TD>([a-z]+\d+[\w&;\+]*)(\(([^\)]+)\)|)</TD>';
-        $reg .= '<TD>([^>]*)</TD>';
-        $reg .= '<TD>([^>]*)</TD>';
-        $reg .= '<TD>([^>]*)</TD>';
-        $reg .= '<TD>([^>]*)([^>]*|<IMG[^>]*>)</TD>';
-        $reg .= '<TD>([^>\d]*)(\d+)[^>]*</TD>';
-        mb_ereg_search_init($content, $reg, 'i');
-
-        // 検索実行
-        $regex_result = array();
-        while ($ret = mb_ereg_search_regs()) {
-            $regex_result[] = array(
-                'device'     => $ret[1],
-                'model'      => $ret[3],
-                'font'       => $ret[4],
-                'char'       => $ret[5],
-                'browser'    => $ret[6],
-                'machiuke'   => $ret[7],
-                'color_type' => $ret[9],
-                'color_num'  => $ret[10],
-            );
-        }
-
-        foreach ($regex_result as $row) {
-            $device = $this->_normalizeDeviceName($row['device']);
-            $info = & $this->_getProfileInfo($device);
-
-            // 機種名
-            $info->setDeviceID($device);
-
-            // モデル名
-            $model = $row['model'];
-            if (empty($model)) {
-                $model = $this->_normalizeModelName($row['device']);
+        $trs = $xml->xpath('//table/tr[@class="acenter"]');
+        foreach ($trs as $tr) {
+            $tmp = array();
+            foreach ($tr->td as $td) {
+                if (!isset($td['rowspan'])) {
+                    $tmp[] = (string)$td->span;
+                }
             }
-            $info->setModel($model);
 
-            // フォントサイズ
-            $reg = '(\(([^\d]+)\))([^\(]+)';
-            mb_ereg_search_init($row['font'], $reg, 'i');
+            // 端末名
+            $_device = array_shift($tmp);
+
+            $match = array();
+            preg_match('/([a-z]+\-?\d+[a-z]*[μ\+]?)(（(.*)）)?/iu', $_device, $match);
+
+            $device = $match[1];
+            if (isset($match[3])) {
+                $model = $match[3];
+            } else {
+                $model = $device;
+            }
+
+            $device = $this->_normalizeDeviceName($device);
+            $info   =& $this->_getProfileInfo($device);
+
+            // 文字の大きさ
+            preg_match_all('/(（(.*)）)?(\d+)×(\d+)/iu', $tmp[0], $match);
             $fonts = array();
-            while ($ret = mb_ereg_search_regs()) {
-                $fonts[$ret[2]] = $ret[3];
-            }
-            if (empty($fonts)) {
-                $fonts = array($row['font']);
-            }
-
-            foreach ($fonts as $key => $value) {
-                $size = mb_split('[^\d]+', $value);
-                $fonts[$key] = array(
-                    'w' => $size[0],
-                    'h' => $size[1],
-                );
+            for ($i = 0; $i < count($match[0]); $i++) {
+                if (empty($match[2][$i])) {
+                    $fonts[] = array(
+                        'width'  => $match[3][$i],
+                        'height' => $match[4][$i],
+                    );
+                } else {
+                    $fonts[$match[2][$i]] = array(
+                        'width'  => $match[3][$i],
+                        'height' => $match[4][$i],
+                    );
+                }
             }
             $info->set('display', 'font', $fonts);
 
             // 表示文字数
-            $reg = '(\(([^\d]+)\))([^\(]+)';
-            mb_ereg_search_init($row['char'], $reg, 'i');
-            $chars = array();
-            while ($ret = mb_ereg_search_regs()) {
-                $chars[$ret[2]] = $ret[3];
-            }
-            $info->set('display', 'char', empty($chars) ? $row['char'] : $chars);
-
-            // ブラウザ表示領域
-            $browsers = array();
-            if ($row['browser']{0} === '(') {
-                $reg = '(\(([^\d]+)\)) *([^\(]+)';
-                mb_ereg_search_init($row['browser'], $reg, 'i');
-                while ($ret = mb_ereg_search_regs()) {
-                    $browsers[$ret[2]] = $ret[3];
-                }
-            } else {
-                $reg = '([^(]+)(\(([^\d]*)\))';
-                mb_ereg_search_init($row['browser'], $reg, 'i');
-                while ($ret = mb_ereg_search_regs()) {
-                    $browsers[$ret[3]] = $ret[1];
-                }
-                if (count($browsers) < 2) {
-                    $reg = '(\(([^\d]+)\))([^\(]+)';
-                    mb_ereg_search_init($row['browser'], $reg, 'i');
-                    $browsers = array();
-                    while ($ret = mb_ereg_search_regs()) {
-                        $browsers[$ret[3]] = $ret[1];
-                    }
-                    if (empty($browsers)) {
-                        $browsers = array($row['browser']);
-                    }
-                }
-            }
-
-            foreach ($browsers as $key => $value) {
-                $size = mb_split('[^\d]+', $value);
-                $browsers[$key] = array(
-                    'w' => $size[0],
-                    'h' => $size[1],
-                );
-            }
-            $info->set('display', 'browser', $browsers);
-
-            // 待ち受け表示領域
-            $reg = '(\(([^\d]+)\)) *([^\(]+)';
-            mb_ereg_search_init($row['machiuke'], $reg, 'i');
-            $machiukes = array();
-            while ($ret = mb_ereg_search_regs()) {
-                $machiukes[$ret[2]] = $ret[3];
-            }
-            if (empty($machiukes)) {
-                $reg = '^([^\d]+)(.*)';
-                $ret = array();
-                mb_eregi($reg, $row['machiuke'], $ret);
-                if (empty($ret)) {
-                    $machiukes = array($row['machiuke']);
+            preg_match_all('/(（(.*)）)?(\d+)/iu', $tmp[1], $match);
+            $characters = array();
+            for ($i = 0; $i < count($match[0]); $i++) {
+                if (empty($match[2][$i])) {
+                    $characters[] = $match[3][$i];
                 } else {
-                    $machiukes = array(
-                        $ret[1] => $ret[2],
-                    );
+                    $characters[$match[2][$i]] = $match[3][$i];
                 }
             }
-            foreach ($machiukes as $key => $value) {
-                $size = mb_split('[^\d]+', $value);
-                if (count($size) >= 2) {
-                    $machiukes[$key] = array(
-                        'w' => $size[0],
-                        'h' => $size[1],
-                    );
-                }
-            }
-            $info->set('display', 'machiuke', $machiukes);
+            $info->set('display', 'character', $characters);
 
-            // カラー
-            $info->set('display', 'color', array(
-                           'type' => $row['color_type'],
-                           'num' => $row['color_num'],
-                       ));
+            // 液晶画面領域(ブラウザ)
+            $tmp[2] = mb_ereg_replace('（', '(', $tmp[2]);
+            $tmp[2] = mb_ereg_replace('）', ')', $tmp[2]);
+            preg_match_all('/(\d+)[^\d]+(\d+)(\(([^\)]*)\))?/iu', $tmp[2], $match);
+            $screens = array();
+            for ($i = 0; $i < count($match[0]); $i++) {
+                if (empty($match[4][$i])) {
+                    $screens[] = array(
+                        'width'  => $match[1][$i],
+                        'height' => $match[2][$i],
+                    );
+                } else {
+                    $screens[$match[4][$i]] = array(
+                        'width'  => $match[1][$i],
+                        'height' => $match[2][$i],
+                    );
+                }
+            }
+            $info->set('browser', 'screen', $screens);
+
+            // 液晶画面領域(待受画面)
+            preg_match_all('/(\n?（?([^）]*)）?\n)?(\d+)×(\d+)/iu', $tmp[3], $match);
+            $screens = array();
+            for ($i = 0; $i < count($match[0]); $i++) {
+                if (empty($match[2][$i])) {
+                    $screens[] = array(
+                        'width'  => $match[3][$i],
+                        'height' => $match[4][$i],
+                    );
+                } else {
+                    $screens[$match[2][$i]] = array(
+                        'width'  => $match[3][$i],
+                        'height' => $match[4][$i],
+                    );
+                }
+            }
+            $info->set('display', 'screen', $screens);
+
+            // 色
+            preg_match_all('/(白黒|カラー)\n?(\d+)/iu', $tmp[4], $match);
+            $color = array(
+                'type' => $match[1][0],
+                'num'  => $match[2][0],
+            );
+            $info->set('display', 'color', $color);
         }
     }
 
