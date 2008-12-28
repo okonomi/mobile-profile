@@ -18,7 +18,7 @@ class Mobile_Profile
         include_once dirname(__FILE__) . '/' . $include_file;
         $module = new $class_name($options);
 
-        $this->profile_info = $module->get();
+        $this->profile_info = $module->collect();
 
         return $this;
     }

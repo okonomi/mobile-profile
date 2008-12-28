@@ -19,7 +19,7 @@ class Mobile_Profile_Collector
         $this->options = $options;
     }
 
-    function get()
+    function collect()
     {
         $this->_correctProfileInfo();
 
