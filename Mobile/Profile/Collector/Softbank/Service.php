@@ -1,7 +1,6 @@
 <?php
 require_once 'Diggin/Scraper.php';
 require_once 'Zend/Http/Client.php';
-require_once dirname(dirname(dirname(__FILE__))).'/Adapter/Softbank/Attrstrip.php';
 
 
 class Mobile_Profile_Collector_Softbank_Service
@@ -12,7 +11,7 @@ class Mobile_Profile_Collector_Softbank_Service
             $url = 'http://creation.mb.softbank.jp/terminal/?lup=y&cat=service';
 
             $client = new Zend_Http_Client();
-            $client->setAdapter(new Mobile_Profile_Adapter_Softbank_Attrstrip());
+            $client->setAdapter('Mobile_Profile_Adapter_Softbank_Attrstrip');
 
             $profile = new Diggin_Scraper_Process();
             $profile->process('td[1]', 'model => "TEXT"')
