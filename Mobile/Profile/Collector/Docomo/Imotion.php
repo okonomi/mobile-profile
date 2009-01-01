@@ -1,6 +1,6 @@
 <?php
 require_once 'Diggin/Scraper.php';
-require_once 'Filter/Device.php';
+require_once dirname(dirname(dirname(__FILE__))).'/Filter/Device.php';
 
 
 class Mobile_Profile_Collector_Docomo_Imotion
