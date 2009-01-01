@@ -1,6 +1,5 @@
 <?php
 require_once 'Diggin/Scraper.php';
-require_once dirname(dirname(dirname(__FILE__))).'/Filter/Device.php';
 
 
 class Mobile_Profile_Collector_Docomo_Useragent
@@ -10,12 +9,14 @@ class Mobile_Profile_Collector_Docomo_Useragent
         try {
             $url = 'http://www.nttdocomo.co.jp/service/imode/make/content/spec/useragent/index.html';
 
+            $_Device = 'Mobile_Profile_Filter_Docomo_Device';
+
             $profile = new Diggin_Scraper_Process();
-            $profile->process('/td[not(@scope) and @class="acenter middle"]', 'series => "TEXT"')
-                    ->process('/td[not(@scope) and not(@class="acenter middle")][1]/span', 'device => "RAW", DocomoDevice')
-                    ->process('/td[not(@scope)][count(img)=0][last()]', 'ua => "TEXT"');
+            $profile->process('/td[not(@scope) and @class="acenter middle"]', "series => TEXT")
+                    ->process('/td[not(@scope) and not(@class="acenter middle")][1]/span', "device => RAW, $_Device")
+                    ->process('/td[not(@scope)][count(img)=0][last()]', "ua => TEXT");
             $section = new Diggin_Scraper_Process();
-            $section->process('div.titlept01 a', 'version => "TEXT"')
+            $section->process('div.titlept01 a', "version => TEXT")
                     ->process('//table/tr', array('profile[]' => $profile));
             $scraper = new Diggin_Scraper();
             $scraper->process('div.boxArea > div.wrap > div.section', array('section[]' => $section))

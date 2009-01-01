@@ -1,6 +1,5 @@
 <?php
 require_once 'Diggin/Scraper.php';
-require_once dirname(dirname(dirname(__FILE__))).'/Filter/Device.php';
 
 
 class Mobile_Profile_Collector_Docomo_Imotion
@@ -10,13 +9,15 @@ class Mobile_Profile_Collector_Docomo_Imotion
         try {
             $url = 'http://www.nttdocomo.co.jp/service/imode/make/content/spec/imotion/index.html';
 
+            $_Device = 'Mobile_Profile_Filter_Docomo_Device';
+
             $profile = new Diggin_Scraper_Process();
-            $profile->process('/td[not(@scope)][1]/span', 'device => "RAW", DocomoDevice')
-                    ->process('/td[not(@scope)][2]/span', 'filesize => "TEXT"')
-                    ->process('/td[not(@scope)][3]/img', 'telop => "@alt"')
-                    ->process('/td[not(@scope)][4]/img', '3d => "@alt"');
+            $profile->process('/td[not(@scope)][1]/span', "device => RAW, $_Device")
+                    ->process('/td[not(@scope)][2]/span', "filesize => TEXT")
+                    ->process('/td[not(@scope)][3]/img', "telop => @alt")
+                    ->process('/td[not(@scope)][4]/img', "3d => @alt");
             $section = new Diggin_Scraper_Process();
-            $section->process('div.titlept01 a', 'version => "TEXT"')
+            $section->process('div.titlept01 a', "version => TEXT")
                     ->process('//table/tr', array('profile[]' => $profile));
             $scraper = new Diggin_Scraper();
             $scraper->process('div.boxArea > div.wrap > div.section', array('section[]' => $section))

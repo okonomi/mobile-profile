@@ -1,7 +1,5 @@
 <?php
 require_once 'Diggin/Scraper.php';
-require_once dirname(dirname(dirname(__FILE__))).'/Filter/Device.php';
-require_once dirname(dirname(dirname(__FILE__))).'/Filter/Size.php';
 
 
 class Mobile_Profile_Collector_Docomo_Photoframe
@@ -11,9 +9,12 @@ class Mobile_Profile_Collector_Docomo_Photoframe
         try {
             $url = 'http://www.nttdocomo.co.jp/service/imode/make/content/spec/frame_size/index.html';
 
+            $_Device = 'Mobile_Profile_Filter_Docomo_Device';
+            $_Size   = 'Mobile_Profile_Filter_Size';
+
             $profile = new Diggin_Scraper_Process();
-            $profile->process('/td[last()-3]/span', 'device => "RAW", DocomoDevice')
-                    ->process('/td[position()>=last()-2]/span[count(./img)=0]', 'size[] => "TEXT", Size');
+            $profile->process('/td[last()-3]/span', "device => RAW, $_Device")
+                    ->process('/td[position()>=last()-2]/span[count(./img)=0]', "size[] => TEXT, $_Size");
             $scraper = new Diggin_Scraper();
             $scraper->process('//table/tr[@class="acenter"]', array('profile[]' => $profile))
                     ->scrape($url);

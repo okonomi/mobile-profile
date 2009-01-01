@@ -1,6 +1,5 @@
 <?php
 require_once 'Diggin/Scraper.php';
-require_once dirname(dirname(dirname(__FILE__))).'/Filter/Device.php';
 
 
 class Mobile_Profile_Collector_Docomo_Display
@@ -10,13 +9,15 @@ class Mobile_Profile_Collector_Docomo_Display
         try {
             $url = 'http://www.nttdocomo.co.jp/service/imode/make/content/spec/screen_area/index.html';
 
+            $_Device = 'Mobile_Profile_Filter_Docomo_Device';
+
             $profile = new Diggin_Scraper_Process();
-            $profile->process('/td[last()-5]/span', 'device => "RAW", DocomoDevice')
-                    ->process('/td[last()-4]', 'font => "TEXT"')
-                    ->process('/td[last()-3]/span', 'character => "RAW"')
-                    ->process('/td[last()-2]', 'browser => "TEXT"')
-                    ->process('/td[last()-1]', 'display => "TEXT"')
-                    ->process('/td[last()-0]', 'color => "TEXT"');
+            $profile->process('/td[last()-5]/span', "device => RAW, $_Device")
+                    ->process('/td[last()-4]', "font => TEXT")
+                    ->process('/td[last()-3]/span', "character => RAW")
+                    ->process('/td[last()-2]', "browser => TEXT")
+                    ->process('/td[last()-1]', "display => TEXT")
+                    ->process('/td[last()-0]', "color => TEXT");
             $scraper = new Diggin_Scraper();
             $scraper->process('//table/tr[@class="acenter"]', array('profile[]' => $profile))
                     ->scrape($url);

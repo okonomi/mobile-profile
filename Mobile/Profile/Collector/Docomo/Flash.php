@@ -1,7 +1,5 @@
 <?php
 require_once 'Diggin/Scraper.php';
-require_once dirname(dirname(dirname(__FILE__))).'/Filter/Device.php';
-require_once dirname(dirname(dirname(__FILE__))).'/Filter/Size.php';
 
 
 class Mobile_Profile_Collector_Docomo_Flash
@@ -11,17 +9,20 @@ class Mobile_Profile_Collector_Docomo_Flash
         try {
             $url = 'http://www.nttdocomo.co.jp/service/imode/make/content/spec/flash/index.html';
 
+            $_Device = 'Mobile_Profile_Filter_Docomo_Device';
+            $_Size   = 'Mobile_Profile_Filter_Size';
+
             $profile = new Diggin_Scraper_Process();
-            $profile->process('/td[last()-6]/span', 'device => "RAW", DocomoDevice')
-                    ->process('/td[last()-5]/span', 'browser => "TEXT", Size')
-                    ->process('/td[last()-4]/span', 'display => "TEXT", Size')
-                    ->process('/td[last()-3]/span', 'memory => "TEXT"')
-                    ->process('/td[last()-2]/span', 'font => "RAW"')
-                    ->process('/td[last()-2]/span/a', 'scalable_font => "TEXT"')
-                    ->process('/td[last()-1]/img', 'pointing => "@alt"')
-                    ->process('/td[last()-0]/span', 'inline => "TEXT"');
+            $profile->process('/td[last()-6]/span', "device => RAW, $_Device")
+                    ->process('/td[last()-5]/span', "browser => TEXT, $_Size")
+                    ->process('/td[last()-4]/span', "display => TEXT, $_Size")
+                    ->process('/td[last()-3]/span', "memory => TEXT")
+                    ->process('/td[last()-2]/span', "font => RAW")
+                    ->process('/td[last()-2]/span/a', "scalable_font => TEXT")
+                    ->process('/td[last()-1]/img', "pointing => @alt")
+                    ->process('/td[last()-0]/span', "inline => TEXT");
             $section = new Diggin_Scraper_Process();
-            $section->process('div.titlept01 a', 'version => "TEXT"')
+            $section->process('div.titlept01 a', "version => TEXT")
                     ->process('//table/tr[not(@class="brownLight acenter middle")]', array('profile[]' => $profile));
             $scraper = new Diggin_Scraper();
             $scraper->process('div.boxArea > div.wrap > div.section', array('section[]' => $section))

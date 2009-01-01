@@ -2,7 +2,7 @@
 require_once 'Zend/Filter/Interface.php';
 
 
-class Zend_Filter_String implements Zend_Filter_Interface
+class Mobile_Profile_Filter_String implements Zend_Filter_Interface
 {
     public function filter($value)
     {
