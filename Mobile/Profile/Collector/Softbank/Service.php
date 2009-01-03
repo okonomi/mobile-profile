@@ -14,14 +14,14 @@ class Mobile_Profile_Collector_Softbank_Service
             $client->setAdapter('Mobile_Profile_Adapter_Softbank_Attrstrip');
 
             $profile = new Diggin_Scraper_Process();
-            $profile->process('td[1]', 'model => "TEXT"')
-                    ->process('td[2]', 'appli => "TEXT"')
-                    ->process('td[3]', 'widget => "TEXT"')
-                    ->process('td[4]', 'flash => "TEXT"')
-                    ->process('td[5]', 'position => "TEXT"')
-                    ->process('td[6]', 'gps => "TEXT"')
-                    ->process('td[7]', 'felica => "TEXT"')
-                    ->process('td[8]', 'fullbrowser => "TEXT"');
+            $profile->process('td[1]', "model => TEXT")
+                    ->process('td[2]', "appli => TEXT")
+                    ->process('td[3]', "widget => TEXT")
+                    ->process('td[4]', "flash => TEXT")
+                    ->process('td[5]', "gps => TEXT")
+                    ->process('td[6]', "agps => TEXT")
+                    ->process('td[7]', "felica => TEXT")
+                    ->process('td[8]', "fullbrowser => TEXT");
 
             $scraper = new Diggin_Scraper();
             $scraper->setHttpClient($client);

@@ -22,7 +22,6 @@ class Mobile_Profile_Collector_Softbank_Httpheader
                     ->process('td[6]', 'smaf => "TEXT"')
                     ->process('td[7]', 'display-info => "TEXT"')
                     ->process('td[8]', 'unique-id => "TEXT"');
-
             $scraper = new Diggin_Scraper();
             $scraper->setHttpClient($client);
             $scraper->process('//tr[@bgcolor="#FFFFFF"]', array('profile[]' => $profile))
@@ -36,14 +35,17 @@ class Mobile_Profile_Collector_Softbank_Httpheader
         foreach ($scraper->profile as $profile) {
             $row = array();
 
-            $row['device'] = $profile['device'];
-            $row['model']  = $profile['model'];
+            $row = $profile;
 
             preg_match('/(G|C)(\d+)/', $profile['color'], $match);
             $row['color'] = array(
                 'is_color' => $match[1] === 'C',
                 'depth'    => $match[2],
             );
+
+            if ($profile['unique-id'] === '-') {
+                $row['unique-id'] = null;
+            }
 
             $result[] = $row;
         }
