@@ -10,18 +10,20 @@ class Mobile_Profile_Collector_Softbank_Httpheader
         try {
             $url = 'http://creation.mb.softbank.jp/terminal/?lup=y&cat=http';
 
+            $_Model = 'Mobile_Profile_Filter_Softbank_Model';
+
             $client = new Zend_Http_Client();
             $client->setAdapter('Mobile_Profile_Adapter_Softbank_Attrstrip');
 
             $profile = new Diggin_Scraper_Process();
-            $profile->process('td[1]', 'model => "TEXT"')
-                    ->process('td[2]', 'device => "TEXT"')
-                    ->process('td[3]', 'display => "TEXT"')
-                    ->process('td[4]', 'color => "TEXT"')
-                    ->process('td[5]', 'sound => "TEXT"')
-                    ->process('td[6]', 'smaf => "TEXT"')
-                    ->process('td[7]', 'display-info => "TEXT"')
-                    ->process('td[8]', 'unique-id => "TEXT"');
+            $profile->process('td[1]', "model => TEXT, $_Model")
+                    ->process('td[2]', "device => TEXT")
+                    ->process('td[3]', "display => TEXT")
+                    ->process('td[4]', "color => TEXT")
+                    ->process('td[5]', "sound => TEXT")
+                    ->process('td[6]', "smaf => TEXT")
+                    ->process('td[7]', "display-info => TEXT")
+                    ->process('td[8]', "unique-id => TEXT");
             $scraper = new Diggin_Scraper();
             $scraper->setHttpClient($client);
             $scraper->process('//tr[@bgcolor="#FFFFFF"]', array('profile[]' => $profile))

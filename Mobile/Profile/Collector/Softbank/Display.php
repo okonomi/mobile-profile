@@ -10,13 +10,14 @@ class Mobile_Profile_Collector_Softbank_Display
         try {
             $url = 'http://creation.mb.softbank.jp/terminal/?lup=y&cat=display';
 
+            $_Model  = 'Mobile_Profile_Filter_Softbank_Model';
             $_Screen = 'Mobile_Profile_Filter_Softbank_Screen';
 
             $client = new Zend_Http_Client();
             $client->setAdapter('Mobile_Profile_Adapter_Softbank_Attrstrip');
 
             $profile = new Diggin_Scraper_Process();
-            $profile->process('td[1]', "model => TEXT")
+            $profile->process('td[1]', "model => TEXT, $_Model")
                     ->process('td[2]', "browser_screen => TEXT, $_Screen")
                     ->process('td[3]', "browser_chars => TEXT")
                     ->process('td[4]', "appli_screen => TEXT")

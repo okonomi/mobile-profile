@@ -10,12 +10,14 @@ class Mobile_Profile_Collector_Softbank_Useragent
         try {
             $url = 'http://creation.mb.softbank.jp/terminal/?lup=y&cat=ua';
 
+            $_Model = 'Mobile_Profile_Filter_Softbank_Model';
+
             $client = new Zend_Http_Client();
             $client->setAdapter('Mobile_Profile_Adapter_Softbank_Attrstrip');
 
             $profile = new Diggin_Scraper_Process();
-            $profile->process('td[last()-1]', 'model => "TEXT"')
-                    ->process('td[last()-0]', 'ua => "TEXT"');
+            $profile->process('td[last()-1]', "model => TEXT, $_Model")
+                    ->process('td[last()-0]', "ua => TEXT");
 
             $scraper = new Diggin_Scraper();
             $scraper->setHttpClient($client);
