@@ -8,7 +8,7 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
     {
         $result = $this->_getScrape('httpheader');
         foreach ($result as $row) {
-            if ($row['unique-id'] === '×' || is_null($row['unique-id'])) {
+            if ($row['unique-id'] === '×' || empty($row['unique-id'])) {
                 $info =& $this->_getProfileInfo($row['device']);
 
                 // 機種名
@@ -28,6 +28,7 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
                 continue;
             }
 
+            $info->set('generation', $row['generation']);
             $info->set('series', $row['series']);
         }
 

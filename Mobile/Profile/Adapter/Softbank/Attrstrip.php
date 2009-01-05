@@ -1,16 +1,32 @@
 <?php
-require_once 'Zend/Http/Client/Adapter/Proxy.php';
+require_once 'Diggin/Scraper/Adapter/Htmlscraping.php';
 
 
-class Mobile_Profile_Adapter_Softbank_Attrstrip extends Zend_Http_Client_Adapter_Proxy
+class Mobile_Profile_Adapter_Softbank_Attrstrip extends Diggin_Scraper_Adapter_Htmlscraping
 {
-    public function read()
+    public function readData($response)
     {
-        $response = parent::read();
+        // tidyに改行されないように
+        // レスポンスを小細工
+        // これやっとかないと「xmlns=」で改行されて
+        // Diggin_Scraper_Adapter_Htmlscrapingがxmlns属性を除去できなくなる
 
-        // tidyで改行されないように属性をけずる
-        $response = preg_replace('/dir="ltr"/', '', $response);
+        // htmlのdir属性を削る
+        $body = $response->getBody();
+        $body = str_replace('dir="ltr"', '', $body);
 
-        return $response;
+        // 内容は符号化されていないことにする
+        $headers = $response->getHeaders();
+        if (isset($headers['Transfer-encoding'])) {
+            unset($headers['Transfer-encoding']);
+        }
+
+        $_response = new Zend_Http_Response(
+            $response->getStatus(),
+            $headers,
+            $body
+        );
+
+        return parent::readData($_response);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 require_once 'Diggin/Scraper.php';
-require_once 'Zend/Http/Client.php';
+require_once dirname(dirname(dirname(__FILE__))).'/Adapter/Softbank/Attrstrip.php';
 
 
 class Mobile_Profile_Collector_Softbank_Display
@@ -13,9 +13,6 @@ class Mobile_Profile_Collector_Softbank_Display
             $_Model  = 'Mobile_Profile_Filter_Softbank_Model';
             $_Screen = 'Mobile_Profile_Filter_Softbank_Screen';
 
-            $client = new Zend_Http_Client();
-            $client->setAdapter('Mobile_Profile_Adapter_Softbank_Attrstrip');
-
             $profile = new Diggin_Scraper_Process();
             $profile->process('td[1]', "model => TEXT, $_Model")
                     ->process('td[2]', "browser_screen => TEXT, $_Screen")
@@ -26,7 +23,7 @@ class Mobile_Profile_Collector_Softbank_Display
                     ->process('td[7]', "widget_wallp => TEXT, $_Screen")
                     ->process('td[8]', "flash => TEXT");
             $scraper = new Diggin_Scraper();
-            $scraper->setHttpClient($client);
+            $scraper->changeStrategy('Diggin_Scraper_Strategy_Flexible', new Mobile_Profile_Adapter_Softbank_Attrstrip());
             $scraper->process('//tr[@bgcolor="#FFFFFF"]', array('profile[]' => $profile))
                     ->scrape($url);
         } catch (Exception $e) {

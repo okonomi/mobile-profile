@@ -1,6 +1,6 @@
 <?php
 require_once 'Diggin/Scraper.php';
-require_once 'Zend/Http/Client.php';
+require_once dirname(dirname(dirname(__FILE__))).'/Adapter/Softbank/Attrstrip.php';
 
 
 class Mobile_Profile_Collector_Softbank_Series
@@ -12,14 +12,11 @@ class Mobile_Profile_Collector_Softbank_Series
 
             $_Model = 'Mobile_Profile_Filter_Softbank_Model';
 
-            $client = new Zend_Http_Client();
-            $client->setAdapter('Mobile_Profile_Adapter_Softbank_Attrstrip');
-
             $profile = new Diggin_Scraper_Process();
             $profile->process('.', "color => @bgcolor")
                     ->process('td[1]', "cell => TEXT, $_Model");
             $scraper = new Diggin_Scraper();
-            $scraper->setHttpClient($client);
+            $scraper->changeStrategy('Diggin_Scraper_Strategy_Flexible', new Mobile_Profile_Adapter_Softbank_Attrstrip());
             $scraper->process('//tr[@bgcolor="#CCCCCC" or @bgcolor="#FFFFFF"]', array('profile[]' => $profile))
                     ->scrape($url);
         } catch (Exception $e) {
@@ -29,14 +26,24 @@ class Mobile_Profile_Collector_Softbank_Series
 
         $result = array();
         $series = null;
+        $generation = null;
         foreach ($scraper->profile as $profile) {
             $row = array();
 
             if ($profile['color'] === '#CCCCCC') {
                 $series = $profile['cell'];
+
+                if (preg_match('/アプリ非対応|50k/iu', $series)) {
+                    $generation = '2G';
+                } elseif (preg_match('/(100|256)k/iu', $series)) {
+                    $generation = '2.5G';
+                } else {
+                    $generation = '3GC';
+                }
             } else {
-                $row['model']  = $profile['cell'];
-                $row['series'] = $series;
+                $row['model']      = $profile['cell'];
+                $row['series']     = $series;
+                $row['generation'] = $generation;
 
                 $result[] = $row;
             }
