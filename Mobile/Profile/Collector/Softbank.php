@@ -21,6 +21,16 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
             }
         }
 
+        $result = $this->_getScrape('series');
+        foreach ($result as $row) {
+            $info =& $this->_getProfileInfoByModel($row['model'], false);
+            if (is_null($info)) {
+                continue;
+            }
+
+            $info->set('series', $row['series']);
+        }
+
         $result = $this->_getScrape('useragent');
         foreach ($result as $row) {
             $info =& $this->_getProfileInfoByModel($row['model'], false);
