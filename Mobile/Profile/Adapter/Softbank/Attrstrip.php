@@ -9,7 +9,7 @@ class Mobile_Profile_Adapter_Softbank_Attrstrip extends Zend_Http_Client_Adapter
         $response = parent::read();
 
         // tidyで改行されないように属性をけずる
-        $response = preg_replace('/<html lang="ja" xml:lang="ja" dir="ltr" /', '<html ', $response);
+        $response = preg_replace('/dir="ltr"/', '', $response);
 
         return $response;
     }
