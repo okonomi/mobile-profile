@@ -28,22 +28,12 @@ class Mobile_Profile_Collector_Au_Basic
             $scraper = new Diggin_Scraper();
             $scraper->process('//table[@width="892"]//tr[@bgcolor="#FFFFFF"]', array('profile[]' => $profile))
                     ->scrape($url);
-            print_r($scraper->results);
-            exit;
         } catch (Exception $e) {
             throw $e;
         }
 
 
-        $result = array();
-        for ($i = 0; $i < count($scraper->model); $i++) {
-            $row = array(
-                'model'    => $scraper->model[$i],
-                'deviceid' => $scraper->deviceid[$i],
-            );
-
-            $result[] = $row;
-        }
+        $result = $scraper->profile;
 
         return $result;
     }

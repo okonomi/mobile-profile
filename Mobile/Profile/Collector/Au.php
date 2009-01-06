@@ -4,225 +4,151 @@ require_once dirname(__FILE__) . '.php';
 
 class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector
 {
-    var $base_url = '';
-
-    var $url_list = array (
-        'id'      => 'http://www.au.kddi.com/ezfactory/tec/spec/4_4.html',
-        'basic'   => 'http://www.au.kddi.com/ezfactory/tec/spec/new_win/ezkishu.html',
-/*         'brew' => array( */
-/*             'http://www.au.kddi.com/ezfactory/service/brew.html', */
-/*         ), */
-/*         'java' => array( */
-/*             'http://www.au.kddi.com/ezfactory/tec/spec/ezplus.html', */
-/*         ), */
-        'decomail' => 'http://www.au.kddi.com/cgi-bin/modellist/allList.cgi?ServiceID=106',
-    );
-
-    var $device_map = null;
-
-    var $device_model_jointed = array ();
-
-    var $device_code = null;
-
-
-    function Model_Profile_Carrier_Au()
+    public function collect()
     {
-    }
-
-    function _parseProfileInfo_Id($content)
-    {
-        $xml = simplexml_import_dom(DOMDocument::loadHTML($content));
-
-        $count = 0;
-        $info = null;
-        $elem = $xml->xpath('//table[@cellpadding="0"]/tr[@bgcolor="#ffffff"]/td/div[@class="TableText"]');
-        foreach ($elem as $val) {
-            $text = (string)$val;
-
-            if (empty($text)) {
-                continue;
-            }
-
-            if ($count % 2 == 0) {
-                $model = $this->_normalizeModelName($text);
-                $info = & $this->_getProfileInfo($model);
-
-                $info->setModel($text);
-            } else {
-                $info->setDeviceID($text);
-
-                if (preg_match('/^[A-Z]{2}2\w/', $text)) {
-                    if (preg_match('/^C\d+.*/', $info->get('model'))) {
-                        $info->set('generation', 'cdmaOne');
-                    } else {
-                        $info->set('generation', '1X');
-                    }
-                } else {
-                    $info->set('generation', 'WIN');
+        $result = $this->_getScrape('deviceid');
+        foreach ($result as $row) {
+            if ($row['deviceid'] === 'CA23') {
+                $row['model'] = 'A5401CA/CA II';
+            } elseif ($row['deviceid'] === 'TS25') {
+                if (!preg_match('/カメラ/', $row['model'])) {
+                    $row['model'] = 'A1304T/T II';
                 }
-            }
-
-            $count++;
-        }
-    }
-
-    function _parseProfileInfo_Basic($content)
-    {
-        $flash_str = array(
-            "●" => '2.0',
-            "◎" => '1.1',
-            "○" => '1.1',
-            "－" => '',
-        );
-
-
-        $matches = array();
-        $xml   = simplexml_import_dom(DOMDocument::loadHTML($content));
-        $elems = $xml->xpath('//table[@width="892"]/tr[@bgcolor="#ffffff"]');
-        foreach ($elems as $elem) {
-            $row = array(
-                'model'           => (string)$elem->td[0]->div,
-                'browser_version' => (string)$elem->td[1]->div,
-                'display_color'   => (string)$elem->td[2]->div,
-                'browser_size'    => (string)$elem->td[4]->div,
-                'display_size'    => (string)$elem->td[5]->div,
-                'flash_version'   => (string)$elem->td[11]->div,
-            );
-            // モデル名
-            $model = $this->_normalizeModelName($row['model']);
-            $info  = & $this->_getProfileInfo($model);
-
-            // ディスプレイ
-            if (preg_match('/(カラー)\((.+)色\)/', $row['display_color'], $matches)) {
-                $info->set('display', 'color', array('type' => $matches[1], 'num' => Mobile_Profile_Collector_Au::toInt($matches[2])));
-            }
-            if (preg_match('/(\d+)×(\d+)/', $row['display_size'], $matches)) {
-                $info->set('display', 'width',  $matches[1]);
-                $info->set('display', 'height', $matches[2]);
-            }
-
-            // ブラウザ
-            $info->set('browser', 'version', $row['browser_version']);
-            if (preg_match('/(\d+)×(\d+)/', $row['browser_size'], $matches)) {
-                $info->set('browser', 'width',  $matches[1]);
-                $info->set('browser', 'height', $matches[1]);
-            }
-
-            // Flashバージョン
-            $tmp = $row['flash_version'];
-            if (isset($flash_str[$tmp])) {
-                $flash_ver = $flash_str[$tmp];
             } else {
-                $flash_ver = '';
+                $row['model'] = preg_replace('/\s?カメラなしモデル/', 'カメラ無し', $row['model']);
             }
-            $info->set('flash', 'flash', $flash_ver);
+            $info =& $this->_getProfileInfoByModel($row['model']);
+
+            // 機種名
+            $info->setDeviceID($row['deviceid']);
+            // モデル名
+            $info->setModel($row['model']);
         }
-    }
 
-    function _parseProfileInfo_Brew($content)
-    {
-        $content = mb_eregi_replace('[\r\n\t]', '', $content);
+        $result = $this->_getScrape('basic');
+        foreach ($result as $row) {
+            $row['model'] = preg_replace('/\s?カメラなしモデル/', 'カメラ無し', $row['model']);
 
-        $reg  = '';
-        $reg .= '<td><div class="TableText">([^>]+)</div></td>';
-        $reg .= '<td align="center"><div class="TableText">([\d\.]+)</div></td>';
-
-        mb_ereg_search_init($content, $reg, 'i');
-
-        // 検索実行
-        while ($ret = mb_ereg_search_regs()) {
-            $model = $this->_normalizeModelName($ret[1]);
-            $model = mb_ereg_replace(' \((.*)\)', '\1', $model);
-            $brew  = 'BREW'.$ret[2];
-
-            $info = & $this->_getProfileInfo($model);
-
-            $info->set('appli', $brew);
-        }
-    }
-
-    function _parseProfileInfo_Java($content)
-    {
-        $content = mb_eregi_replace('[\r\n\t]', '', $content);
-
-        $reg  = '';
-        $reg .= '<td bgcolor="#f2f2f2" nowrap><div class="TableText">(Phase[\d\.]+)</div></td>';
-        $reg .= '<td><div class="TableText">au<br>([^>]+)</div></td>';
-
-        mb_ereg_search_init($content, $reg, 'i');
-
-        // 検索実行
-        while ($ret = mb_ereg_search_regs()) {
-            $phase = $ret[1];
-            $models = explode(' / ', $ret[2]);
-
-            foreach ($models as $model) {
-                $model = mb_ereg_replace('\(.*\)', '', $model);
-                $model = trim($model);
-
-                $row = & $result[$model];
-
-                $row['appli'] = $phase;
-            }
-        }
-    }
-
-    function _parseProfileInfo_Decomail($content)
-    {
-        $xml = simplexml_import_dom(DOMDocument::loadHTML($content));
-
-        $elem = $xml->xpath('//div[@id="primaryArea"]/table[@class="table middle"]/tr/td[@bgcolor="#f1f4f6"]');
-        $text = (string)current($elem);
-
-        $values = mb_split(", ", $text);
-
-        mb_regex_encoding('UTF-8');
-        foreach ($values as $model) {
-            $model = $this->_normalizeModelName($model);
-
-            // 機種名だけをがんばってとりだす
-            if (preg_match('/[^ a-zA-Z0-9\/]+/', $model)) {
-                $tokens = mb_split(' ', $model);
-                $model = end($tokens);
-            }
-
-            $info =& $this->_getProfileInfo($model, false);
+            $info =& $this->_getProfileInfoByModel($row['model'], false);
             if (is_null($info)) {
                 continue;
             }
 
-
-            $info->set('decomail', 'allow', 't');
-        }
-    }
-
-    function _normalizeModelName($model)
-    {
-        $model = mb_ereg_replace('\/.*', '', $model);
-        $model = trim($model);
-
-        return $model;
-    }
-
-    function toInt($value)
-    {
-        $value = str_replace(',', '', $value);
-
-        switch ($value) {
-        case "26万":
-            $value = 260000;
-            break;
-        case "6万5千":
-        case "6.5万":
-            $value = 65000;
-            break;
-        case "6万":
-            $value = 60000;
-            break;
-        default:
-            $value = (int)$value;
+            foreach ($row as $key => $val) {
+                $info->set('basic', $key, $val);
+            }
         }
 
-        return $value;
+        $result = $this->_getScrape('brew');
+        foreach ($result as $row) {
+            $row['model'] = preg_replace(
+                array(
+                    '/ \(カメラ無し\)/',
+                    '/\s?カメラなしモデル/',
+                ),
+                'カメラ無し',
+                $row['model']
+            );
+
+            $info =& $this->_getProfileInfoByModel($row['model'], false);
+            if (is_null($info)) {
+                continue;
+            }
+
+            foreach ($row as $key => $val) {
+                $info->set('brew', $key, $val);
+            }
+        }
+
+        $result = $this->_getScrape('java');
+        foreach ($result as $row) {
+            $info =& $this->_getProfileInfoByModel($row['model'], false);
+            if (is_null($info)) {
+                continue;
+            }
+
+            foreach ($row as $key => $val) {
+                $info->set('java', $key, $val);
+            }
+        }
+
+        $result = $this->_getScrape('service');
+
+        $service_names  = array();
+        $service_models = array();
+        foreach ($result as $row) {
+            $service_names[] = $row['name'];
+
+            foreach ($row['model'] as $model) {
+                $service_models[$model][$row['name']] = true;
+            }
+        }
+
+        foreach ($service_models as $model => $row) {
+            $model = preg_replace(
+                array(
+                    '/\s?ケータイ\s?/',
+                    '/([^\s]{1})(W)/',
+                    '/\s?カメラなしモデル/',
+                    '/’/',
+                    '/\s\(/',
+                ),
+                array(
+                    'ケータイ ',
+                    '\\1 \\2',
+                    'カメラ無し',
+                    "'",
+                    '(',
+                ),
+                $model
+            );
+
+            $info =& $this->_getProfileInfoByModel($model, false);
+            if (is_null($info)) {
+                continue;
+            }
+
+            foreach ($row as $key => $val) {
+                $info->set('service', $key, $val);
+            }
+        }
+
+        return $this->info_data;
+    }
+
+    private function _getScrape($name)
+    {
+        $name = ucfirst(strtolower($name));
+
+        $filename  = dirname(__FILE__).'/Au/'.$name.'.php';
+        $classname = 'Mobile_Profile_Collector_Au_'.$name;
+
+        require_once $filename;
+        $component = new $classname();
+        $result = $component->scrape();
+
+        return $result;
+    }
+
+    function &_getProfileInfoByModel($model, $create = true)
+    {
+        $info = null;
+
+        foreach ($this->info_data as $device_id => $info) {
+            if ($info->get('model') === $model) {
+                return $info;
+            }
+        }
+
+        if (!$create) {
+            $_model = end(mb_split('\s+', preg_replace('/\s?I{2,3}/', '', $model)));
+            foreach ($this->info_data as $device_id => $info) {
+                if (preg_match('/(^'.$_model.')|('.$_model.'$)/', $info->get('model'))) {
+                    return $info;
+                }
+            }
+        }
+
+        return $this->_getProfileInfo($model, $create);
     }
 }
