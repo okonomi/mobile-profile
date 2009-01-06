@@ -23,6 +23,16 @@ class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector
             $info->setDeviceID($row['deviceid']);
             // モデル名
             $info->setModel($row['model']);
+            // 世代
+            if (preg_match('/^[A-Z]{2}2\w/', $row['deviceid'])) {
+                if (preg_match('/^C\d+.*/', $row['model'])) {
+                    $info->set('generation', 'cdmaOne');
+                } else {
+                    $info->set('generation', '1X');
+                }
+            } else {
+                $info->set('generation', 'WIN');
+            }
         }
 
         $result = $this->_getScrape('basic');
