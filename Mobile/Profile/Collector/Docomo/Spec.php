@@ -1,26 +1,26 @@
 <?php
-require_once 'HTTP/Request.php';
+require_once 'HTTP/Request2.php';
 
 
 class Mobile_Profile_Collector_Docomo_Spec
 {
     public function scrape()
     {
-        $url = 'http://www.nttdocomo.co.jp/binary/pdf/service/imode/make/content/spec/imode_spec.pdf';
+        try {
+            $url = 'http://www.nttdocomo.co.jp/binary/pdf/service/imode/make/content/spec/imode_spec.pdf';
 
-        $options = array (
-            'timeout'        => '10', // タイムアウトの秒数指定
-            'allowRedirects' => true, // リダイレクトの許可設定(true/false)
-            'maxRedirects'   => 3,    // リダイレクトの最大回数
-        );
-        $request = new HTTP_Request();
-        $request->reset($url, $options);
-        $response = $request->sendRequest();
-        if (PEAR::isError($response)) {
-            echo $response->getMessage();
-            return false;
+            $request = new HTTP_Request2($url, HTTP_Request2::METHOD_GET);
+
+            $response = $request->send();
+            if ($response->getStatus() !== 200) {
+                throw new Exception('Server returned status: '.$response->getStatus());
+            }
+
+            $content = $response->getBody();
+        } catch (HTTP_Request2_Exception $e) {
+            throw $e;
         }
-        $content = $request->getResponseBody();
+
         $imode_spec = self::_parseImodeSpec($content);
 
         $result = array();

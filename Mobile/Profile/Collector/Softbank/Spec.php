@@ -1,5 +1,5 @@
 <?php
-require_once 'HTTP/Request.php';
+require_once 'HTTP/Request2.php';
 
 
 class Mobile_Profile_Collector_Softbank_Spec
@@ -15,53 +15,53 @@ class Mobile_Profile_Collector_Softbank_Spec
 
     protected function _getDeviceSpecList($username, $password)
     {
-        $request = new HTTP_Request();
+        try {
+            $request = new HTTP_Request2();
+            $request->setConfig(array('ssl_verify_peer' => false));
 
 
-        // ログインページをGET
-        $request->reset('https://creation.mb.softbank.jp/members/mem_login.html');
-        $request->setMethod(HTTP_REQUEST_METHOD_GET);
-        if (PEAR::isError($ret = $request->sendRequest())) {
-            exit($ret->getMessage());
-        }
-        // セッションIDらしきものが発行される
-        $cookie = $request->getResponseCookies();
-        $id = $cookie[0];
+            // ログインページをGET
+            $response =
+                    $request->setUrl('https://creation.mb.softbank.jp/members/mem_login.html')
+                    ->setMethod(HTTP_Request2::METHOD_GET)
+                    ->send();
 
+            // セッションIDらしきものが発行される
+            $cookie = $response->getCookies();
+            $id = $cookie[0];
 
-        // ログイン
-        $request->reset('https://creation.mb.softbank.jp/members/mem_login.html');
-        $request->setMethod(HTTP_REQUEST_METHOD_POST);
-        $request->addPostData('email',     $username);
-        $request->addPostData('pass_text', $password);
-        $request->addPostData('save',      '1');
-        $request->addCookie($id['name'], $id['value']);
-        if (PEAR::isError($ret = $request->sendRequest())) {
-            exit($ret->getMessage());
-        }
-        $cookie = $request->getResponseCookies();
+            // ログイン
+            $response =
+                    $request->setUrl('https://creation.mb.softbank.jp/members/mem_login.html')
+                    ->setMethod(HTTP_Request2::METHOD_POST)
+                    ->addPostParameter(array(
+                                           'email'     => $username,
+                                           'pass_text' => $password,
+                                           'save'      =>'1',
+                                       ))
+                    ->send();
+            $cookie = $response->getCookies();
 
+            // スペック一覧ダウンロード
+            $request->setUrl('http://creation.mb.softbank.jp/terminal/spec_download.html')
+                    ->setMethod(HTTP_Request2::METHOD_POST)
+                    ->addPostParameter('lup', 'y')
+                    ->addCookie($id['name'], $id['value']);
+            foreach ($cookie as $val) {
+                $request->addCookie($val['name'], $val['value']);
+            }
+            $response = $request->send();
 
-        // スペック一覧ダウンロード
-        $request->reset('http://creation.mb.softbank.jp/terminal/spec_download.html');
-        $request->setMethod(HTTP_REQUEST_METHOD_POST);
-        $request->addPostData('lup', 'y');
-        $request->addCookie($id['name'], $id['value']);
-        foreach ($cookie as $c) {
-            $request->addCookie($c['name'], $c['value']);
-        }
-        if (PEAR::isError($ret = $request->sendRequest())) {
-            exit($ret->getMessage());
-        }
-        $csv = $request->getResponseBody();
+            // スペック表ゲット
+            $csv = $response->getBody();
 
-
-        // ログアウト
-        $request->reset('http://creation.mb.softbank.jp/members/mem_logout.html');
-        $request->setMethod(HTTP_REQUEST_METHOD_GET);
-        $request->addCookie($id['name'], $id['value']);
-        if (PEAR::isError($ret = $request->sendRequest())) {
-            exit($ret->getMessage());
+            // ログアウト
+            $request->setUrl('http://creation.mb.softbank.jp/members/mem_logout.html')
+                    ->setMethod(HTTP_Request2::METHOD_GET)
+                    ->addCookie($id['name'], $id['value'])
+                    ->send();
+        } catch (HTTP_Request2_Exception $e) {
+            throw $e;
         }
 
 
