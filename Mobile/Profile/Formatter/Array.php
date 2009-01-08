@@ -1,11 +1,13 @@
 <?php
+
+
 class Mobile_Profile_Formatter_Array
 {
-    function Mobile_Profile_Formatter_Array()
+    public function __construct()
     {
     }
 
-    function format($info)
+    public function format($info)
     {
         $result = array();
 

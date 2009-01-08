@@ -4,7 +4,7 @@ require_once 'Diggin/Scraper.php';
 
 class Mobile_Profile_Collector_Docomo_Series
 {
-    function scrape()
+    public function scrape()
     {
         $url_base = 'http://www.nttdocomo.co.jp/';
         $url_list = array(

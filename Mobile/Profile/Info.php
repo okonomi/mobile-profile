@@ -2,13 +2,14 @@
 
 class Mobile_Profile_Info
 {
-    var $prop = array();
+    protected $prop = array();
 
-    function Mobile_Profile_Info()
+
+    public function __construct()
     {
     }
 
-    function set()
+    public function set()
     {
         $keys = func_get_args();
         $value = array_pop($keys);
@@ -20,17 +21,17 @@ class Mobile_Profile_Info
         $prop = $value;
     }
 
-    function setDeviceID($device_id)
+    public function setDeviceID($device_id)
     {
         $this->set('device', $device_id);
     }
 
-    function setModel($model)
+    public function setModel($model)
     {
         $this->set('model', $model);
     }
 
-    function get($name)
+    public function get($name)
     {
         if (isset($this->prop[$name])) {
             return $this->prop[$name];
@@ -39,12 +40,12 @@ class Mobile_Profile_Info
         }
     }
 
-    function getPropArray()
+    public function getPropArray()
     {
         return $this->prop;
     }
 
-    function setPropDef($prop)
+    public function setPropDef($prop)
     {
         foreach ($prop as $p) {
             $this->prop[$p] = null;

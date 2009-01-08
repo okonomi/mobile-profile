@@ -4,7 +4,7 @@ require_once 'HTTP/Request.php';
 
 class Mobile_Profile_Collector_Docomo_Spec
 {
-    function scrape()
+    public function scrape()
     {
         $url = 'http://www.nttdocomo.co.jp/binary/pdf/service/imode/make/content/spec/imode_spec.pdf';
 
@@ -66,7 +66,7 @@ class Mobile_Profile_Collector_Docomo_Spec
         return $result;
     }
 
-    function _parseImodeSpec($content)
+    private function _parseImodeSpec($content)
     {
         $tmpfile = tempnam(sys_get_temp_dir(), '');
         $outfile = "{$tmpfile}.txt";

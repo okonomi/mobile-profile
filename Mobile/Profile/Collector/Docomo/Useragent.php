@@ -4,7 +4,7 @@ require_once 'Diggin/Scraper.php';
 
 class Mobile_Profile_Collector_Docomo_Useragent
 {
-    function scrape()
+    public function scrape()
     {
         try {
             $url = 'http://www.nttdocomo.co.jp/service/imode/make/content/spec/useragent/index.html';

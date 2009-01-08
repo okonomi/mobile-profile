@@ -4,7 +4,7 @@ require_once 'HTTP/Request2.php';
 
 class Mobile_Profile_Collector_Softbank_Product
 {
-    function scrape()
+    public function scrape()
     {
         try {
             // 機種一覧

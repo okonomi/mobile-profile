@@ -4,7 +4,7 @@ require_once 'Diggin/Scraper.php';
 
 class Mobile_Profile_Collector_Docomo_Flash
 {
-    function scrape()
+    public function scrape()
     {
         try {
             $url = 'http://www.nttdocomo.co.jp/service/imode/make/content/spec/flash/index.html';

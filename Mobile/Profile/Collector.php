@@ -1,5 +1,5 @@
 <?php
-require_once 'Info.php';
+require_once dirname(__FILE__).'/Info.php';
 
 
 abstract class Mobile_Profile_Collector
