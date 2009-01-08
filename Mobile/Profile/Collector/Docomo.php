@@ -4,7 +4,7 @@ require_once dirname(__FILE__) . '.php';
 
 class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
 {
-    public function collect()
+    protected function _correctProfile()
     {
         $result = $this->_getScrape('useragent');
         foreach ($result as $row) {
@@ -174,9 +174,6 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
             // 背景サイズ
             $info->set('menuicon', 'bg_size', $row['bg_size']);
         }
-
-
-        return $this->info_data;
     }
 
     private function _getScrape($name)

@@ -4,7 +4,7 @@ require_once dirname(__FILE__) . '.php';
 
 class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector
 {
-    public function collect()
+    protected function _correctProfile()
     {
         $result = $this->_getScrape('deviceid');
         foreach ($result as $row) {
@@ -43,6 +43,11 @@ class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector
             if (is_null($info)) {
                 continue;
             }
+
+            // ブラウザの種類というかバージョンというか
+            $info->set('browser', 'version', $row['browser_type']);
+            // 表示領域
+            $info->set('browser', 'screen', $row['browser_screen']);
 
             foreach ($row as $key => $val) {
                 $info->set('basic', $key, $val);
@@ -122,8 +127,6 @@ class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector
                 $info->set('service', $key, $val);
             }
         }
-
-        return $this->info_data;
     }
 
     private function _getScrape($name)

@@ -4,7 +4,7 @@ require_once dirname(__FILE__) . '.php';
 
 class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
 {
-    public function collect()
+    protected function _correctProfile()
     {
         $result = $this->_getScrape('httpheader');
         foreach ($result as $row) {
@@ -93,9 +93,6 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
 
             $info->set('display', 'lcd', $row['lcd']);
         }
-
-
-        return $this->info_data;
     }
 
     private function _getScrape($name)
