@@ -9,7 +9,7 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
         $result = $this->_getScrape('httpheader');
         foreach ($result as $row) {
             if ($row['unique-id'] === '×' || empty($row['unique-id'])) {
-                $info =& $this->_getProfileInfo($row['device']);
+                $info =& $this->_getProfileInfo($row['model']);
 
                 // 機種名
                 $info->setDeviceID($row['device']);
@@ -23,7 +23,7 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
 
         $result = $this->_getScrape('series');
         foreach ($result as $row) {
-            $info =& $this->_getProfileInfoByModel($row['model'], false);
+            $info =& $this->_getProfileInfo($row['model'], false);
             if (is_null($info)) {
                 continue;
             }
@@ -34,7 +34,7 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
 
         $result = $this->_getScrape('useragent');
         foreach ($result as $row) {
-            $info =& $this->_getProfileInfoByModel($row['model'], false);
+            $info =& $this->_getProfileInfo($row['model'], false);
             if (is_null($info)) {
                 continue;
             }
@@ -44,7 +44,7 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
 
         $result = $this->_getScrape('service');
         foreach ($result as $row) {
-            $info =& $this->_getProfileInfoByModel($row['model'], false);
+            $info =& $this->_getProfileInfo($row['model'], false);
             if (is_null($info)) {
                 continue;
             }
@@ -54,7 +54,7 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
 
         $result = $this->_getScrape('display');
         foreach ($result as $row) {
-            $info =& $this->_getProfileInfoByModel($row['model'], false);
+            $info =& $this->_getProfileInfo($row['model'], false);
             if (is_null($info)) {
                 continue;
             }
@@ -72,7 +72,7 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
 
         $result = $this->_getScrape('appli');
         foreach ($result as $row) {
-            $info =& $this->_getProfileInfoByModel($row['model'], false);
+            $info =& $this->_getProfileInfo($row['model'], false);
             if (is_null($info)) {
                 continue;
             }
@@ -86,7 +86,7 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
 
         $result = $this->_getScrape('function');
         foreach ($result as $row) {
-            $info =& $this->_getProfileInfoByModel($row['model'], false);
+            $info =& $this->_getProfileInfo($row['model'], false);
             if (is_null($info)) {
                 continue;
             }

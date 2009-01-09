@@ -27,7 +27,7 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
 
         $result = $this->_getScrape('series');
         foreach ($result as $row) {
-            $info =& $this->_getProfileInfoByModel($row['model'], false);
+            $info =& $this->_getProfileInfoByProp('model', $row['model'], false);
             if (is_null($info)) {
                 continue;
             }

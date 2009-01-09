@@ -17,7 +17,7 @@ class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector
             } else {
                 $row['model'] = preg_replace('/\s?カメラなしモデル/', 'カメラ無し', $row['model']);
             }
-            $info =& $this->_getProfileInfoByModel($row['model']);
+            $info =& $this->_getProfileInfo($row['model']);
 
             // 機種名
             $info->setDeviceID($row['deviceid']);
@@ -39,7 +39,7 @@ class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector
         foreach ($result as $row) {
             $row['model'] = preg_replace('/\s?カメラなしモデル/', 'カメラ無し', $row['model']);
 
-            $info =& $this->_getProfileInfoByModel($row['model'], false);
+            $info =& $this->_getProfileInfo($row['model'], false);
             if (is_null($info)) {
                 continue;
             }
@@ -65,7 +65,7 @@ class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector
                 $row['model']
             );
 
-            $info =& $this->_getProfileInfoByModel($row['model'], false);
+            $info =& $this->_getProfileInfo($row['model'], false);
             if (is_null($info)) {
                 continue;
             }
@@ -77,7 +77,7 @@ class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector
 
         $result = $this->_getScrape('java');
         foreach ($result as $row) {
-            $info =& $this->_getProfileInfoByModel($row['model'], false);
+            $info =& $this->_getProfileInfo($row['model'], false);
             if (is_null($info)) {
                 continue;
             }
@@ -118,7 +118,7 @@ class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector
                 $model
             );
 
-            $info =& $this->_getProfileInfoByModel($model, false);
+            $info =& $this->_getProfileInfo($model, false);
             if (is_null($info)) {
                 continue;
             }
@@ -143,25 +143,34 @@ class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector
         return $result;
     }
 
-    function &_getProfileInfoByModel($model, $create = true)
+    protected function &_getProfileInfo($value, $create = true)
     {
         $info = null;
 
-        foreach ($this->info_data as $device_id => $info) {
-            if ($info->get('model') === $model) {
-                return $info;
-            }
+        if (isset($this->info_data[$value])) {
+            $info =& $this->info_data[$value];
+            return $info;
         }
 
         if (!$create) {
-            $_model = end(mb_split('\s+', preg_replace('/\s?I{2,3}/', '', $model)));
-            foreach ($this->info_data as $device_id => $info) {
-                if (preg_match('/(^'.$_model.')|('.$_model.'$)/', $info->get('model'))) {
+            $_model = end(mb_split('\s+', preg_replace('/\s?I{2,3}/', '', $value)));
+            $_model = str_replace('-', '\-', preg_quote($_model, '/'));
+            $reg    = "/(^{$_model})|({$_model}$)/";
+
+            foreach ($this->info_data as $key => $info) {
+                if (preg_match($reg, $key)) {
                     return $info;
                 }
             }
         }
 
-        return $this->_getProfileInfo($model, $create);
+        if ($create) {
+            $info = new Mobile_Profile_Info();
+            $this->info_data[$value] = & $info;
+        } else {
+            $info = null;
+        }
+
+        return $info;
     }
 }
