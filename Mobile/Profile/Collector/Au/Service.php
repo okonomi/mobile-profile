@@ -1,14 +1,13 @@
 <?php
 require_once 'Diggin/Scraper.php';
+require_once 'Zend/Http/Client.php';
+require_once 'Zend/Http/Client/Adapter/Test.php';
 
 
 class Mobile_Profile_Collector_Au_Service
 {
     public function scrape()
     {
-        $serviceid_list = array();
-
-
         // サービスカテゴリのURLを取得
         try {
             $url = 'http://www.au.kddi.com/service/index.html';
@@ -19,49 +18,71 @@ class Mobile_Profile_Collector_Au_Service
         } catch (Exception $e) {
             throw $e;
         }
-        $category_urls = $scraper->url;
 
-        foreach ($category_urls as $category_url) {
+        $urls = array();
+        foreach ($scraper->url as $url) {
+            $urls[] = preg_replace('/^'.preg_quote('http://www.au.kddi.com', '/').'/', '', $url);
+        }
+        $pages = self::_parallelRequest('www.au.kddi.com', $urls);
+
+
+        $adapter = new Zend_Http_Client_Adapter_Test();
+        $client  = new Zend_Http_Client();
+        $client->setAdapter($adapter);
+        Diggin_Scraper::setHttpClient($client);
+
+        $urls = array();
+        foreach ($pages as $page) {
             // 各サービスのURLを取得
             try {
-                $url = $category_url;
+                $adapter->setResponse($page);
 
                 $scraper = new Diggin_Scraper();
                 $scraper->process('div.contentsBoxCols3 p.contentsBoxTitle a', "url[] => @href")
-                        ->scrape($url);
+                        ->scrape('http://www.au.kddi.com/');
             } catch (Exception $e) {
                 continue;
             }
-            $service_urls = $scraper->url;
 
-            // サービスのページからサービスIDを割り出す
-            foreach ($service_urls as $service_url) {
-                try {
-                    $url = str_replace('/%20/service/kino', '', $service_url);
+            foreach ($scraper->url as $url) {
+                $urls[] = preg_replace('/^'.preg_quote('http://www.au.kddi.com', '/').'/', '', $url);
+            }
+        }
+        $pages = self::_parallelRequest('www.au.kddi.com', $urls);
 
-                    $scraper = new Diggin_Scraper();
-                    $scraper->process('//div[@id="secondaryArea"]//a[starts-with(@href, "/cgi-bin")]', "serviceid[] => @href, Digits")
-                            ->scrape($url);
+        // サービスのページからサービスIDを割り出す
+        $serviceid_list = array();
+        foreach ($pages as $page) {
+            try {
+                $adapter->setResponse($page);
 
-                    $serviceid_list = array_merge($serviceid_list, $scraper->serviceid);
-                } catch (Exception $e) {
-                    continue;
-                }
+                $scraper = new Diggin_Scraper();
+                $scraper->process('//div[@id="secondaryArea"]//a[starts-with(@href, "/cgi-bin")]',
+                                  "serviceid[] => @href, Digits")
+                        ->scrape('http://www.au.kddi.com/');
+
+                $serviceid_list = array_merge($serviceid_list, $scraper->serviceid);
+            } catch (Exception $e) {
+                continue;
             }
         }
 
-        sort($serviceid_list);
+        $urls = array();
+        foreach ($serviceid_list as $serviceid) {
+            $urls[] = sprintf('/cgi-bin/modellist/allList.cgi?ServiceID=%d', $serviceid);
+        }
+        $pages = self::_parallelRequest('www.au.kddi.com', $urls);
 
 
         $result = array();
-        foreach ($serviceid_list as $serviceid) {
+        foreach ($pages as $page) {
             try {
-                $url = sprintf('http://www.au.kddi.com/cgi-bin/modellist/allList.cgi?ServiceID=%d', $serviceid);
+                $adapter->setResponse($page);
 
                 $scraper = new Diggin_Scraper();
                 $scraper->process('h1', "service => TEXT")
                         ->process('//table//td', "models => TEXT")
-                        ->scrape($url);
+                        ->scrape('http://www.au.kddi.com/');
             } catch (Exception $e) {
                 continue;
             }
@@ -75,6 +96,51 @@ class Mobile_Profile_Collector_Au_Service
 
             $result[] = $row;
         }
+
+
+        return $result;
+    }
+
+    private function _parallelRequest($host, $urls)
+    {
+        $timeout = 10;
+        $sockets = array();
+        $result  = array();
+
+        $id = 0;
+        foreach ($urls as $url) {
+            $s = stream_socket_client(
+                "{$host}:80", $errno, $errstr, $timeout,
+                STREAM_CLIENT_ASYNC_CONNECT | STREAM_CLIENT_CONNECT);
+            if ($s) {
+                $sockets[$id++] = $s;
+                $http_msg = "GET {$url} HTTP 1.0\r\nHost: {$host}\r\n\r\n";
+                fwrite($s, $http_msg);
+            } else {
+                throw new Exception("{$errno}: {$errstr}");
+            }
+        }
+
+        while (count($sockets)) {
+            $read = $sockets;
+            stream_select($read, $w=null, $e=null, $timeout);
+            if (count($read)) {
+                foreach ($read as $r) {
+                    $id   = array_search($r, $sockets);
+                    $data = fread($r, 1024 * 8);
+
+                    if (strlen($data) == 0) {
+                        fclose($r);
+                        unset($sockets[$id]);
+                    } else {
+                        $result[$id] .= $data;
+                    }
+                }
+            } else {
+                throw new Exception("Time-out!");
+            }
+        }
+
 
         return $result;
     }
