@@ -4,18 +4,34 @@ require_once 'HTTP/Request2.php';
 
 class Mobile_Profile_Collector_Softbank_Spec
 {
-    public function scrape($username, $password)
+    protected $options = array();
+
+
+    public function scrape()
     {
-        $csv   = self::_getDeviceSpecList($username, $password);
+        $csv   = self::_getDeviceSpecList();
         $csv   = mb_convert_encoding($csv, 'UTF-8', 'sjis-win');
         $specs = self::_explodeCSV($csv);
 
         return $specs;
     }
 
-    protected function _getDeviceSpecList($username, $password)
+    public function setOptions($options)
+    {
+        $this->options = $options;
+
+        return $this;
+    }
+
+    protected function _getDeviceSpecList()
     {
         try {
+            foreach (array('username', 'password') as $option) {
+                if (!isset($this->options[$option])) {
+                    throw new Exception('option is empty: '.$option);
+                }
+            }
+
             $request = new HTTP_Request2();
             $request->setConfig(array('ssl_verify_peer' => false));
 
@@ -23,8 +39,8 @@ class Mobile_Profile_Collector_Softbank_Spec
             // ログインページをGET
             $response =
                     $request->setUrl('https://creation.mb.softbank.jp/members/mem_login.html')
-                    ->setMethod(HTTP_Request2::METHOD_GET)
-                    ->send();
+                            ->setMethod(HTTP_Request2::METHOD_GET)
+                            ->send();
 
             // セッションIDらしきものが発行される
             $cookie = $response->getCookies();
@@ -33,13 +49,13 @@ class Mobile_Profile_Collector_Softbank_Spec
             // ログイン
             $response =
                     $request->setUrl('https://creation.mb.softbank.jp/members/mem_login.html')
-                    ->setMethod(HTTP_Request2::METHOD_POST)
-                    ->addPostParameter(array(
-                                           'email'     => $username,
-                                           'pass_text' => $password,
+                            ->setMethod(HTTP_Request2::METHOD_POST)
+                            ->addPostParameter(array(
+                                           'email'     => $this->options['username'],
+                                           'pass_text' => $this->options['password'],
                                            'save'      =>'1',
                                        ))
-                    ->send();
+                            ->send();
             $cookie = $response->getCookies();
 
             // スペック一覧ダウンロード
