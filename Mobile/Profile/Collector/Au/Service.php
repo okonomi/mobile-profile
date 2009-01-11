@@ -2,6 +2,7 @@
 require_once 'Diggin/Scraper.php';
 require_once 'Zend/Http/Client.php';
 require_once 'Zend/Http/Client/Adapter/Test.php';
+require_once dirname(dirname(dirname(__FILE__))).'/Util.php';
 
 
 class Mobile_Profile_Collector_Au_Service
@@ -23,7 +24,7 @@ class Mobile_Profile_Collector_Au_Service
         foreach ($scraper->url as $url) {
             $urls[] = preg_replace('/^'.preg_quote('http://www.au.kddi.com', '/').'/', '', $url);
         }
-        $pages = self::_parallelRequest('www.au.kddi.com', $urls);
+        $pages = Mobile_Profile_Util::parallelRequest('www.au.kddi.com', $urls);
 
 
         $adapter = new Zend_Http_Client_Adapter_Test();
@@ -48,7 +49,7 @@ class Mobile_Profile_Collector_Au_Service
                 $urls[] = preg_replace('/^'.preg_quote('http://www.au.kddi.com', '/').'/', '', $url);
             }
         }
-        $pages = self::_parallelRequest('www.au.kddi.com', $urls);
+        $pages = Mobile_Profile_Util::parallelRequest('www.au.kddi.com', $urls);
 
         // サービスのページからサービスIDを割り出す
         $serviceid_list = array();
@@ -71,7 +72,7 @@ class Mobile_Profile_Collector_Au_Service
         foreach ($serviceid_list as $serviceid) {
             $urls[] = sprintf('/cgi-bin/modellist/allList.cgi?ServiceID=%d', $serviceid);
         }
-        $pages = self::_parallelRequest('www.au.kddi.com', $urls);
+        $pages = Mobile_Profile_Util::parallelRequest('www.au.kddi.com', $urls);
 
 
         $result = array();
@@ -95,50 +96,6 @@ class Mobile_Profile_Collector_Au_Service
             $row['model'] = mb_split('\s*,\s*', $scraper->models);
 
             $result[] = $row;
-        }
-
-
-        return $result;
-    }
-
-    private function _parallelRequest($host, $urls)
-    {
-        $timeout = 10;
-        $sockets = array();
-        $result  = array();
-
-        $id = 0;
-        foreach ($urls as $url) {
-            $s = stream_socket_client(
-                "{$host}:80", $errno, $errstr, $timeout,
-                STREAM_CLIENT_ASYNC_CONNECT | STREAM_CLIENT_CONNECT);
-            if ($s) {
-                $sockets[$id++] = $s;
-                $http_msg = "GET {$url} HTTP 1.0\r\nHost: {$host}\r\n\r\n";
-                fwrite($s, $http_msg);
-            } else {
-                throw new Exception("{$errno}: {$errstr}");
-            }
-        }
-
-        while (count($sockets)) {
-            $read = $sockets;
-            stream_select($read, $w=null, $e=null, $timeout);
-            if (count($read)) {
-                foreach ($read as $r) {
-                    $id   = array_search($r, $sockets);
-                    $data = fread($r, 1024 * 8);
-
-                    if (strlen($data) == 0) {
-                        fclose($r);
-                        unset($sockets[$id]);
-                    } else {
-                        $result[$id] .= $data;
-                    }
-                }
-            } else {
-                throw new Exception("Time-out!");
-            }
         }
 
 
