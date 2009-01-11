@@ -1,6 +1,6 @@
 <?php
 require_once 'Diggin/Scraper.php';
-require_once dirname(dirname(dirname(__FILE__))).'/Adapter/Softbank/Attrstrip.php';
+require_once 'Mobile/Profile/Adapter/Softbank/Attrstrip.php';
 
 
 class Mobile_Profile_Collector_Softbank_Function

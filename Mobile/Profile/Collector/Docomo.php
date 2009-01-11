@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__FILE__) . '.php';
+require_once 'Mobile/Profile/Collector.php';
 
 
 class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
@@ -180,7 +180,7 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector
     {
         $name = ucfirst(strtolower($name));
 
-        $filename  = dirname(__FILE__).'/Docomo/'.$name.'.php';
+        $filename  = 'Mobile/Profile/Collector/Docomo/'.$name.'.php';
         $classname = 'Mobile_Profile_Collector_Docomo_'.$name;
 
         require_once $filename;

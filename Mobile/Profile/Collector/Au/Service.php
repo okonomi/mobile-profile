@@ -2,7 +2,7 @@
 require_once 'Diggin/Scraper.php';
 require_once 'Zend/Http/Client.php';
 require_once 'Zend/Http/Client/Adapter/Test.php';
-require_once dirname(dirname(dirname(__FILE__))).'/Util.php';
+require_once 'Mobile/Profile/Util.php';
 
 
 class Mobile_Profile_Collector_Au_Service

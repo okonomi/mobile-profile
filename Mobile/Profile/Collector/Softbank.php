@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__FILE__) . '.php';
+require_once 'Mobile/Profile/Collector.php';
 
 
 class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
@@ -99,7 +99,7 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
     {
         $name = ucfirst(strtolower($name));
 
-        $filename  = dirname(__FILE__).'/Softbank/'.$name.'.php';
+        $filename  = 'Mobile/Profile/Collector/Softbank/'.$name.'.php';
         $classname = 'Mobile_Profile_Collector_Softbank_'.$name;
 
         require_once $filename;
