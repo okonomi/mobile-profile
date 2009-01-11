@@ -13,7 +13,7 @@ class Mobile_Profile_Adapter_Softbank_Attrstrip extends Diggin_Scraper_Adapter_H
 
         // htmlのdir属性を削る
         $body = $response->getBody();
-        $body = str_replace('dir="ltr"', '', $body);
+        $body = preg_replace('/(<html[^>]*)(\s+dir="[^"]+")/', '\1', $body);
 
         // 内容は符号化されていないことにする
         $headers = $response->getHeaders();

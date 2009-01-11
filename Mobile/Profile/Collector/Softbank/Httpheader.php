@@ -22,8 +22,9 @@ class Mobile_Profile_Collector_Softbank_Httpheader
                     ->process('td[7]', "display-info => TEXT")
                     ->process('td[8]', "unique-id => TEXT");
             $scraper = new Diggin_Scraper();
-            $scraper->changeStrategy('Diggin_Scraper_Strategy_Flexible', new Mobile_Profile_Adapter_Softbank_Attrstrip());
-            $scraper->process('//tr[@bgcolor="#FFFFFF"]', array('profile[]' => $profile))
+            $scraper->changeStrategy('Diggin_Scraper_Strategy_Flexible',
+                                     new Mobile_Profile_Adapter_Softbank_Attrstrip())
+                    ->process('//tr[@bgcolor="#FFFFFF"]', array('profile[]' => $profile))
                     ->scrape($url);
         } catch (Exception $e) {
             throw $e;

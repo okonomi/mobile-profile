@@ -21,8 +21,9 @@ class Mobile_Profile_Collector_Softbank_Format
                     ->process('td[6]', "midi => TEXT")
                     ->process('td[7]', "mp4 => TEXT");
             $scraper = new Diggin_Scraper();
-            $scraper->changeStrategy('Diggin_Scraper_Strategy_Flexible', new Mobile_Profile_Adapter_Softbank_Attrstrip());
-            $scraper->process('//tr[@bgcolor="#FFFFFF"]', array('profile[]' => $profile))
+            $scraper->changeStrategy('Diggin_Scraper_Strategy_Flexible',
+                                     new Mobile_Profile_Adapter_Softbank_Attrstrip())
+                    ->process('//tr[@bgcolor="#FFFFFF"]', array('profile[]' => $profile))
                     ->scrape($url);
         } catch (Exception $e) {
             throw $e;
