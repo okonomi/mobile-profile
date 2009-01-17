@@ -12,7 +12,8 @@ class Mobile_Profile_Collector_Docomo_Useragent
             $_Device = 'Mobile_Profile_Filter_Docomo_Device';
 
             $profile = new Diggin_Scraper_Process();
-            $profile->process('/td[not(@scope) and @class="acenter middle"]', "series => TEXT")
+            $profile->process('/td[@class="brownLight acenter middle"]', "header => TEXT")
+                    ->process('/td[not(@scope) and @class="acenter middle"]', "series => TEXT")
                     ->process('/td[not(@scope) and not(@class="acenter middle")][1]/span', "device => RAW, $_Device")
                     ->process('/td[not(@scope)][count(img)=0][last()]', "ua => TEXT");
             $section = new Diggin_Scraper_Process();
@@ -33,7 +34,9 @@ class Mobile_Profile_Collector_Docomo_Useragent
             $html_version = $match[1];
 
             foreach ($section['profile'] as $profile) {
-                if (isset($profile['series'])) {
+                if (isset($profile['header'])) {
+                    $series = null;
+                } elseif (isset($profile['series'])) {
                     $series = $profile['series'];
                 }
 
@@ -49,10 +52,10 @@ class Mobile_Profile_Collector_Docomo_Useragent
                     '2.0' => 'FOMA',
                 );
                 if (preg_match('/DoCoMo\/([\d\.]+)(\/| )[\w\d\+\-]+(\/|\()c(\d+)/i', $profile['ua'], $match)) {
-                    $row['cache']      = (int)$match[4];
+                    $row['cache']      = $match[4];
                     $row['generation'] = $generation_list[$match[1]];
                 } else {
-                    $row['cache']      = 5;
+                    $row['cache']      = '5';
                     $row['generation'] = $generation_list['1.0'];
                 }
 
