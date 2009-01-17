@@ -1,12 +1,9 @@
 <?php
+require_once 'Mobile/Profile/Formatter/Interface.php';
 
 
-class Mobile_Profile_Formatter_Array
+class Mobile_Profile_Formatter_Array implements Mobile_Profile_Formatter_Interface
 {
-    public function __construct()
-    {
-    }
-
     public function format($info)
     {
         $result = array();

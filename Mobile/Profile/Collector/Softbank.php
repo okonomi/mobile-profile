@@ -1,8 +1,8 @@
 <?php
-require_once 'Mobile/Profile/Collector.php';
+require_once 'Mobile/Profile/Collector/Abstract.php';
 
 
-class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector
+class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector_Abstract
 {
     protected function _correctProfile()
     {
