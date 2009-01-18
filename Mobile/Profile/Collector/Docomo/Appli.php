@@ -56,17 +56,22 @@ class Mobile_Profile_Collector_Docomo_Appli
                 $row['profile'] = $appli_profile;
 
                 $tmp = array_pad(mb_split('/', $profile['size']), 2, null);
-                $row['appli_size_jar']        = $tmp[0];
-                $row['appli_size_scratchpad'] = $tmp[1];
+                $row['applisize'] = array(
+                    'jar'        => $tmp[0],
+                    'scratchpad' => $tmp[1],
+                );
 
-                $row['panel_size']  = $profile['panel'];
-                $row['canvas_size'] = $profile['canvas'];
+                $row['drawarea'] = array(
+                    'panel'  => $profile['panel'],
+                    'canvas' => $profile['canvas'],
+                );
 
                 $tmp = array_pad(mb_split('/|／', $profile['heap']), 2, null);
-                $row['heap_java']   = $tmp[0];
-                $row['heap_native'] = $tmp[1];
-
-                $row['heap_widget'] = $profile['heap_widget'];
+                $row['heap'] = array(
+                    'java'   => $tmp[0],
+                    'native' => $tmp[1],
+                    'widget' => $profile['heap_widget'],
+                );
 
                 $row['font'] = $profile['font'];
 
