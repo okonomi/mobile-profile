@@ -8,8 +8,6 @@ require_once 'Mobile/Profile/Collector/Docomo/Useragent.php';
 
 $lime = new lime_test();
 
-$lime->comment('useragent');
-
 $module = new Mobile_Profile_Collector_Docomo_Useragent();
 $result = $module->scrape();
 
@@ -62,6 +60,7 @@ foreach ($result as $value) {
         $lime->is_deeply($value, $sample_data[$value['device']]);
         unset($sample_data[$value['device']]);
     }
+    $lime->is(count($value), 6);
 }
 
 $lime->is(count($sample_data), 0);
