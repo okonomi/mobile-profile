@@ -34,16 +34,19 @@ class Mobile_Profile_Collector_Docomo_Menuicon
                 }
 
                 $row = array();
-                $row['device']    = $profile['device']['device'];
-                $row['model']     = $profile['device']['model'];
-                $row['item']      = mb_split('／', $profile['item']);
-                $row['icon_size'] = $profile['size'];
+
+                $row['device']     = $profile['device']['device'];
+                $row['model']      = $profile['device']['model'];
+                $row['item']       = mb_split('／', $profile['item']);
+                $row['icon_size']  = $profile['size'];
+                $row['need_embed'] = ($profile['embed'] === '要');
 
                 $device = $profile['device'];
             } else {
-                $row['bg_size'] = $profile['size'];
+                $row['background_size'] = $profile['size'];
             }
         }
+        $result[] = $row;
 
         return $result;
     }
