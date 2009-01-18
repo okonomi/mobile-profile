@@ -43,8 +43,6 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector_Abstract
                 continue;
             }
 
-            // 文字の大きさ
-            $info->set('display', 'font', $row['font']);
             // 表示文字数
             $info->set('display', 'character', $row['character']);
             // 液晶画面領域(ブラウザ)
@@ -66,21 +64,19 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector_Abstract
             $info->set('appli', 'profile', $row['profile']);
             // アプリサイズ
             $info->set('appli', 'size', array(
-                           'jar'        => $row['appli_size_jar'],
-                           'scratchpad' => $row['appli_size_scratchpad'],
+                           'jar'        => $row['applisize']['jar'],
+                           'scratchpad' => $row['applisize']['scratchpad'],
                        ));
             // 描画領域
             $info->set('appli', 'drawarea', array(
-                           'panel'  => $row['panel_size'],
-                           'canvas' => $row['canvas_size'],
+                           'panel'  => $row['drawarea']['panel'],
+                           'canvas' => $row['drawarea']['canvas'],
                        ));
             // ヒープ
             $info->set('appli', 'heap', array(
-                           'appli' => array(
-                               'java'   => $row['heap_java'],
-                               'native' => $row['heap_native'],
-                           ),
-                           'widget' => $row['heap_widget'],
+                           'java'   => $row['heap']['java'],
+                           'native' => $row['heap']['native'],
+                           'widget' => $row['heap']['widget'],
                        ));
             // フォントサイズ
             $info->set('appli', 'font', $row['font']);
@@ -96,9 +92,9 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector_Abstract
             // Flashバージョン
             $info->set('flash', 'flash', $row['version']);
             // 描画領域(ブラウザ)
-            $info->set('flash', 'browser', $row['browser']);
+            $info->set('flash', 'browser', $row['drawarea']['browser']);
             // 描画領域(待受画面)
-            $info->set('flash', 'display', $row['display']);
+            $info->set('flash', 'display', $row['drawarea']['display']);
             // ワークメモリ
             $info->set('flash', 'memory', $row['memory']);
             // フォント
@@ -119,16 +115,16 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector_Abstract
             }
 
             // デコメバージョン
-            $info->set('decomail', 'version', $row['decomail_version']);
+            $info->set('decomail', 'version', $row['decomail']['version']);
             // デコメ送信
-            $info->set('decomail', 'send', $row['decomail_send']);
+            $info->set('decomail', 'send', $row['decomail']['send']);
             // デコメ編集
-            $info->set('decomail', 'edit', $row['decomail_edit']);
+            $info->set('decomail', 'edit', $row['decomail']['edit']);
             // デコメテンプレート
             $info->set('decomail', 'template', array(
-                           'allow' => $row['decomail_template'],
-                           'dl'    => $row['decomail_template_dl'],
-                           'title' => $row['decomail_template_title'],
+                           'allow' => $row['decomail']['template'],
+                           'dl'    => $row['decomail']['template_dl'],
+                           'title' => $row['decomail']['template_title'],
                        ));
         }
 
@@ -172,7 +168,9 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector_Abstract
             // アイコンサイズ
             $info->set('menuicon', 'icon_size', $row['icon_size']);
             // 背景サイズ
-            $info->set('menuicon', 'bg_size', $row['bg_size']);
+            $info->set('menuicon', 'background_size', $row['background_size']);
+            // メニュー名称埋め込み
+            $info->set('menuicon', 'need_embed', $row['need_embed']);
         }
     }
 

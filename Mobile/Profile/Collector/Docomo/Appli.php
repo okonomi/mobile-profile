@@ -70,7 +70,7 @@ class Mobile_Profile_Collector_Docomo_Appli
                 $row['heap'] = array(
                     'java'   => $tmp[0],
                     'native' => $tmp[1],
-                    'widget' => $profile['heap_widget'],
+                    'widget' => isset($profile['heap_widget']) ? $profile['heap_widget'] : null,
                 );
 
                 $row['font'] = $profile['font'];

@@ -42,7 +42,7 @@ class Mobile_Profile_Collector_Docomo_Spec
             if (preg_match('/([\d\.]+)(\*(\d+))?$/', $spec['decomail'], $match)) {
                 $decomail_version = $match[1];
 
-                if (isset($match[3])) {
+                if (count($match) < 4) {
                     $decomail_specialtype = 0;
                 } else {
                     $decomail_specialtype = (int)$match[3];
@@ -52,13 +52,16 @@ class Mobile_Profile_Collector_Docomo_Spec
                 $decomail_specialtype = -1;
             }
 
-            unset($spec['decomail']);
-            $spec['decomail_version']        = $decomail_version;
-            $spec['decomail_send']           = (boolean)$decomail_spec[$decomail_specialtype][0];
-            $spec['decomail_edit']           = (boolean)$decomail_spec[$decomail_specialtype][1];
-            $spec['decomail_template']       = (boolean)$decomail_spec[$decomail_specialtype][2];
-            $spec['decomail_template_dl']    = (boolean)$decomail_spec[$decomail_specialtype][3];
-            $spec['decomail_template_title'] = (boolean)$decomail_spec[$decomail_specialtype][4];
+            $spec['decomail'] = array(
+                'version'        => $decomail_version,
+                'send'           => (boolean)$decomail_spec[$decomail_specialtype][0],
+                'edit'           => (boolean)$decomail_spec[$decomail_specialtype][1],
+                'template'       => (boolean)$decomail_spec[$decomail_specialtype][2],
+                'template_dl'    => (boolean)$decomail_spec[$decomail_specialtype][3],
+                'template_title' => (boolean)$decomail_spec[$decomail_specialtype][4],
+            );
+
+            unset($spec['etc']);
 
             $result[] = $spec;
         }
@@ -73,7 +76,7 @@ class Mobile_Profile_Collector_Docomo_Spec
 
         file_put_contents($tmpfile, $content);
 
-        exec("pdftotext -layout -nopgbrk -eol unix {$tmpfile} {$outfile}");
+        exec("pdftotext -layout -nopgbrk -enc UTF-8 -eol unix {$tmpfile} {$outfile}");
 
         $contents_type = array(
             'html',
@@ -128,6 +131,10 @@ class Mobile_Profile_Collector_Docomo_Spec
             if (end($data) === '') {
                 array_pop($data);
             }
+            if (count($data) == 0) {
+                continue;
+            }
+
             if ($data[0] === 'FOMA') {
                 array_shift($data);
                 array_shift($data);
