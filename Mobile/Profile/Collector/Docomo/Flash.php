@@ -35,17 +35,19 @@ class Mobile_Profile_Collector_Docomo_Flash
         $result = array();
         $flash_version = null;
         foreach ($scraper->section as $section) {
-            $flash_version = $section['version'];
+            $flash_version = preg_replace('/(Flash Lite) ?([\d\.]+)/', '\1 \2', $section['version']);
 
             foreach ($section['profile'] as $profile) {
                 $row = array();
 
-                $row['device']  = $profile['device']['device'];
-                $row['model']   = $profile['device']['model'];
-                $row['version'] = $flash_version;
-                $row['browser'] = $profile['browser'];
-                $row['display'] = $profile['display'];
-                $row['memory']  = $profile['memory'];
+                $row['device']   = $profile['device']['device'];
+                $row['model']    = $profile['device']['model'];
+                $row['version']  = $flash_version;
+                $row['drawarea'] = array(
+                    'browser' => $profile['browser'],
+                    'display' => isset($profile['display']) ? $profile['display'] : null,
+                );
+                $row['memory']   = $profile['memory'];
 
                 preg_match_all('/(\d+)×(\d+)/', (string)$profile['font'], $match);
                 $fonts = array();
@@ -60,7 +62,7 @@ class Mobile_Profile_Collector_Docomo_Flash
                 $row['font']          = $fonts;
                 $row['scalable_font'] = $scalable_font;
 
-                $row['pointing'] = $profile['pointing'];
+                $row['pointing'] = ($profile['pointing'] === '対応');
                 $row['inline']   = $profile['inline'];
 
                 $result[] = $row;
