@@ -46,10 +46,10 @@ class Mobile_Profile_Collector_Docomo_Imotion
                 } elseif(preg_match('/(\d+)Kbyte$/', $bytes, $match)) {
                     $bytes = $match[1] * 1024;
                 }
-                $row['filesize'] = $bytes;
+                $row['filesize'] = (string)$bytes;
 
-                $row['telop'] = $profile['telop'];
-                $row['3d']    = $profile['3d'];
+                $row['telop'] = ($profile['telop'] === '対応');
+                $row['3d']    = ($profile['3d'] === '対応');
 
                 $result[] = $row;
             }
