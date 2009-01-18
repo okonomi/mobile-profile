@@ -22,6 +22,7 @@ class Mobile_Profile_Collector_Docomo_Useragent
             $scraper = new Diggin_Scraper();
             $scraper->process('div.boxArea > div.wrap > div.section', array('section[]' => $section))
                     ->scrape($url);
+            print_r($scraper->results);
         } catch (Exception $e) {
             throw $e;
         }
@@ -36,7 +37,9 @@ class Mobile_Profile_Collector_Docomo_Useragent
             foreach ($section['profile'] as $profile) {
                 if (isset($profile['header'])) {
                     $series = null;
-                } elseif (isset($profile['series'])) {
+                    continue;
+                }
+                if (isset($profile['series'])) {
                     $series = $profile['series'];
                 }
 
