@@ -61,8 +61,6 @@ class Mobile_Profile_Collector_Docomo_Spec
                 'template_title' => (boolean)$decomail_spec[$decomail_specialtype][4],
             );
 
-            unset($spec['etc']);
-
             $result[] = $spec;
         }
 
@@ -71,6 +69,9 @@ class Mobile_Profile_Collector_Docomo_Spec
 
     private function _parseImodeSpec($content)
     {
+        $_encoding = mb_regex_encoding('UTF-8');
+
+
         $tmpfile = tempnam(sys_get_temp_dir(), '');
         $outfile = "{$tmpfile}.txt";
 
@@ -110,11 +111,26 @@ class Mobile_Profile_Collector_Docomo_Spec
 
 
         $lines = array();
-        while($line = fgets($fp, 1024)) {
-            if (preg_match('/\*\d+$/', $line)) {
-                $lines[count($lines) -1] .= ' '. $line;
+        $continued = false;
+        while($line = fgets($fp, 10240)) {
+            if (strlen($line) <= 2) {
+                continue;
+            }
+
+            if ($continued) {
+                $_1st = $lines[count($lines) -1];
+                $_2nd = $line;
+
+                $lines[count($lines) -1] = array($_1st, $_2nd);
             } else {
                 $lines[] = $line;
+            }
+
+            // 「*1」とかで終わってる
+            if (preg_match('/\*\d+$/iu', $line)) {
+                $continued = true;
+            } else {
+                $continued = false;
             }
         }
         fclose($fp);
@@ -124,7 +140,15 @@ class Mobile_Profile_Collector_Docomo_Spec
 
 
         foreach ($lines as $data) {
+            $come = null;
+            if (is_array($data)) {
+                $tmp  = mb_split('[\s]+', $data[0]);
+                $come = $tmp[count($tmp) -2];
+                $data = reset($tmp).' '.$data[1];
+            }
+
             $data = mb_split('[\s　]+', $data);
+
             if (reset($data) === '') {
                 array_shift($data);
             }
@@ -140,26 +164,25 @@ class Mobile_Profile_Collector_Docomo_Spec
                 array_shift($data);
             }
 
-            if (preg_match('/^[A-Z]{1,2}\-?\d+/', $data[0])) {
+            if (preg_match('/^[A-Z]{1,2}\-?\d+/iu', $data[0])) {
                 $device = array_shift($data);
 
-                if (preg_match('/^\(/', $data[0])) {
+                if (preg_match('/^\(/iu', $data[0])) {
                     $model = '';
                     do {
                         $model .= ' '.array_shift($data);
-                    } while (!preg_match('/\)$/', $model));
+                    } while (!preg_match('/\)$/iu', $model));
                     $model = substr($model, 2, strlen($model) -3);
                 } else {
                     $model = $device;
                 }
 
-                if (count($data) >= count($contents_type)) {
-                    list ($data, $etc) = array_chunk($data, count($contents_type) -1);
-                    $data[] = implode(' ', $etc);
-                }
-
                 $tmp  = array_pad($data, count($contents_type), '');
                 $spec = array_combine($contents_type, $tmp);
+
+                if (!is_null($come)) {
+                    $spec['decomail'] .= $come;
+                }
 
 
                 $device = str_replace('μ', 'myu', $device);
@@ -171,6 +194,9 @@ class Mobile_Profile_Collector_Docomo_Spec
                 ) + $spec;
             }
         }
+
+        mb_regex_encoding($_encoding);
+
 
         return $imode_spec;
     }

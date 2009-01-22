@@ -47,6 +47,7 @@ $sample_data = array(
         'barcode'     => '3.0',
         'ssl'         => 'd',
         'drm'         => 'c',
+        'etc'         => '国R、FB、ワンセグ対応',
     ),
 );
 
@@ -55,7 +56,7 @@ foreach ($result as $value) {
         $lime->is_deeply($value, $sample_data[$value['device']]);
         unset($sample_data[$value['device']]);
     }
-//    $lime->is(count($value), 26);
+    $lime->is(count($value), 26);
 }
 
 $lime->is(count($sample_data), 0);
