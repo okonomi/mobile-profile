@@ -38,10 +38,10 @@ class Mobile_Profile_Collector_Softbank_Appli
 
             $arr = explode('/', $profile['size']);
             $row['size'] = array(
-                'jad'          => $arr[0],
-                'jar'          => $arr[1],
-                'recordsctore' => $arr[2],
-                'total'        => $profile['total'],
+                'jad'         => $arr[0],
+                'jar'         => $arr[1],
+                'recordstore' => $arr[2],
+                'total'       => $profile['total'],
             );
             unset($row['total']);
 

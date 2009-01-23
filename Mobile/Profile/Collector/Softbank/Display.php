@@ -50,8 +50,8 @@ class Mobile_Profile_Collector_Softbank_Display
 
                 $key = !empty($match[4][$i]) ? $match[4][$i] : $i;
                 $chars[$key0][$key] = array(
-                    'vertical'   => $match[5][$i],
-                    'horizontal' => $match[6][$i],
+                    'char' => $match[5][$i],
+                    'line' => $match[6][$i],
                 );
             }
             $row['browser_chars'] = $chars;
@@ -70,7 +70,6 @@ class Mobile_Profile_Collector_Softbank_Display
             }
             $row['appli_screen'] = $screens;
 
-            $row['appli_font'] = $fonts;
             $fonts = array();
             if (preg_match_all('/([^\d]+)?(\d+) x (\d+)/', $profile['appli_font'], $match)) {
                 for ($i = 0; $i < count($match[0]); $i++) {

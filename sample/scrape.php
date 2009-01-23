@@ -1,6 +1,6 @@
 <?php
-define('BASE', dirname(__FILE__));
-ini_set("include_path", BASE."/..".PATH_SEPARATOR.ini_get("include_path"));
+error_reporting(E_ALL|E_STRICT);
+set_include_path(dirname(__FILE__)."/..".PATH_SEPARATOR.get_include_path());
 
 
 $class    = $argv[1];
