@@ -78,7 +78,7 @@ class Mobile_Profile_Collector_Softbank_Product
             throw $e;
         }
 
-        return $allows;
+        return array_values($allows);
     }
 
     private function _getXML($url)

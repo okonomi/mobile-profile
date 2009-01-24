@@ -6,7 +6,7 @@ class Mobile_Profile_Util
     /**
      *  @see http://www.ibm.com/developerworks/jp/opensource/library/os-php-multitask/index.html
      */
-    public function parallelRequest($host, $urls)
+    static public function parallelRequest($host, $urls)
     {
         $timeout = 10;
         $sockets = array();
@@ -28,7 +28,9 @@ class Mobile_Profile_Util
 
         while (count($sockets)) {
             $read = $sockets;
-            stream_select($read, $w=null, $e=null, $timeout);
+            $w = null;
+            $e = null;
+            stream_select($read, $w, $e, $timeout);
             if (count($read)) {
                 foreach ($read as $r) {
                     $id   = array_search($r, $sockets);
@@ -38,6 +40,9 @@ class Mobile_Profile_Util
                         fclose($r);
                         unset($sockets[$id]);
                     } else {
+                        if (!isset($result[$id])) {
+                            $result[$id] = '';
+                        }
                         $result[$id] .= $data;
                     }
                 }

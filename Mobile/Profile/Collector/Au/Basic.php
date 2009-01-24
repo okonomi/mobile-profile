@@ -57,8 +57,8 @@ class Mobile_Profile_Collector_Au_Basic
 
             preg_match('/(\d+)×(\d+)/', $profile['chars'], $match);
             $row['display_chars'] = array(
-                'vartical'   => $match[1],
-                'horizontal' => $match[2],
+                'char' => $match[1],
+                'line' => $match[2],
             );
 
             $row['browser_screen'] = $profile['browser'];
@@ -95,6 +95,6 @@ class Mobile_Profile_Collector_Au_Basic
             $value = (int)$value;
         }
 
-        return $value;
+        return (string)$value;
     }
 }

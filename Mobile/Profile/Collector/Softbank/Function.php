@@ -20,7 +20,7 @@ class Mobile_Profile_Collector_Softbank_Function
                     ->process('td[4]', "bluetooth => TEXT")
                     ->process('td[5]', "ir => RAW, $_String")
                     ->process('td[6]', "qr => TEXT")
-                    ->process('td[7]', "tv => TEXT")
+                    ->process('td[7]', "tv => RAW, $_String")
                     ->process('td[8]', "highspeed => TEXT")
                     ->process('td[9]', "camera => TEXT");
             $scraper = new Diggin_Scraper();
@@ -44,6 +44,7 @@ class Mobile_Profile_Collector_Softbank_Function
             );
 
             $row['ir'] = mb_split('\n', $profile['ir']);
+            $row['tv'] = mb_split('\n', $profile['tv']);
 
             $result[] = $row;
         }

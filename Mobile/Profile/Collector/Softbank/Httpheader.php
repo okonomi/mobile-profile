@@ -37,6 +37,12 @@ class Mobile_Profile_Collector_Softbank_Httpheader
 
             $row = $profile;
 
+            $display = explode('*', $profile['display']);
+            $row['display'] = array(
+                'width'  => $display[0],
+                'height' => $display[1],
+            );
+
             preg_match('/(G|C)(\d+)/', $profile['color'], $match);
             $row['color'] = array(
                 'is_color' => $match[1] === 'C',

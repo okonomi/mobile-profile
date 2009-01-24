@@ -10,11 +10,12 @@ class Mobile_Profile_Collector_Softbank_Useragent
         try {
             $url = 'http://creation.mb.softbank.jp/terminal/?lup=y&cat=ua';
 
-            $_Model = 'Mobile_Profile_Filter_Softbank_Model';
+            $_Model  = 'Mobile_Profile_Filter_Softbank_Model';
+            $_String = 'Mobile_Profile_Filter_String';
 
             $profile = new Diggin_Scraper_Process();
             $profile->process('td[last()-1]', "model => TEXT, $_Model")
-                    ->process('td[last()-0]', "ua => TEXT");
+                    ->process('td[last()-0]', "ua => RAW, $_String");
             $scraper = new Diggin_Scraper();
             $scraper->changeStrategy('Diggin_Scraper_Strategy_Flexible',
                                      new Mobile_Profile_Adapter_Softbank_Attrstrip())
@@ -30,7 +31,7 @@ class Mobile_Profile_Collector_Softbank_Useragent
             'appli',
             'widget',
             'flash',
-            'fullbworser',
+            'fullbrowser',
         );
         $result = array();
         $model = null;
@@ -47,7 +48,7 @@ class Mobile_Profile_Collector_Softbank_Useragent
             }
 
             $ua_name = $ua_names[count($row['useragent'])];
-            $ua = $profile['ua'];
+            $ua = preg_replace('/\n/', ' ', $profile['ua']);
             if (preg_match('/^(-|ー|−)$/', $ua)) {
                 $ua = null;
             }
