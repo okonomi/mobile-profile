@@ -11,7 +11,7 @@ class Mobile_Profile_Collector_Docomo_Display
 
             $_Device = 'Mobile_Profile_Filter_Docomo_Device';
 
-            $profile = new Diggin_Scraper_Process();
+            $profile = new Diggin_Scraper();
             $profile->process('/td[last()-5]/span', "device => RAW, $_Device")
                     ->process('/td[last()-4]', "chars => TEXT")
                     ->process('/td[last()-2]', "browser => TEXT")

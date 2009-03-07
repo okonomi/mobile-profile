@@ -13,7 +13,7 @@ class Mobile_Profile_Collector_Docomo_Appli
             $_Size   = 'Mobile_Profile_Filter_Size';
             $_String = 'Mobile_Profile_Filter_String';
 
-            $star = new Diggin_Scraper_Process();
+            $star = new Diggin_Scraper();
             $star->process('/td[not(@class) and @rowspan]', "profile => TEXT")
                  ->process('/td[not(@class) and not(@rowspan)][1]/span', "device => RAW, $_Device")
                  ->process('/td[not(@class) and not(@rowspan)][2]/span', "size => TEXT")
@@ -22,7 +22,7 @@ class Mobile_Profile_Collector_Docomo_Appli
                  ->process('/td[not(@class) and not(@rowspan)][5]/span', "heap => TEXT")
                  ->process('/td[not(@class) and not(@rowspan)][6]/span', "heap_widget => TEXT")
                  ->process('/td[not(@class) and not(@rowspan)][7]/span', "font => TEXT, $_Size");
-            $doja = new Diggin_Scraper_Process();
+            $doja = new Diggin_Scraper();
             $doja->process('/td[not(@class) and @rowspan]', "profile => TEXT")
                  ->process('/td[not(@class) and not(@rowspan)][1]/span', "device => RAW, $_Device")
                  ->process('/td[not(@class) and not(@rowspan)][2]/span', "size => TEXT")
@@ -41,7 +41,7 @@ class Mobile_Profile_Collector_Docomo_Appli
 
         $result = array();
         $appli_profile = null;
-        foreach ($scraper->results as $results) {
+        foreach ($scraper->getResults() as $results) {
             foreach ($results as $profile) {
                 if (isset($profile['profile'])) {
                     preg_match('/([a-z0-9\.\-]+)プロファイル$/i', $profile['profile'], $match);

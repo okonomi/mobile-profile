@@ -12,7 +12,7 @@ class Mobile_Profile_Collector_Docomo_Flash
             $_Device = 'Mobile_Profile_Filter_Docomo_Device';
             $_Size   = 'Mobile_Profile_Filter_Size';
 
-            $profile = new Diggin_Scraper_Process();
+            $profile = new Diggin_Scraper();
             $profile->process('/td[last()-6]/span', "device => RAW, $_Device")
                     ->process('/td[last()-5]/span', "browser => TEXT, $_Size")
                     ->process('/td[last()-4]/span', "display => TEXT, $_Size")
@@ -21,7 +21,7 @@ class Mobile_Profile_Collector_Docomo_Flash
                     ->process('/td[last()-2]/span/a', "scalable_font => TEXT")
                     ->process('/td[last()-1]/img', "pointing => @alt")
                     ->process('/td[last()-0]/span', "inline => TEXT");
-            $section = new Diggin_Scraper_Process();
+            $section = new Diggin_Scraper();
             $section->process('div.titlept01 a', "version => TEXT")
                     ->process('//table/tr[not(@class="brownLight acenter middle")]', array('profile[]' => $profile));
             $scraper = new Diggin_Scraper();

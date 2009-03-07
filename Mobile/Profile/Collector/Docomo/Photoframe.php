@@ -12,7 +12,7 @@ class Mobile_Profile_Collector_Docomo_Photoframe
             $_Device = 'Mobile_Profile_Filter_Docomo_Device';
             $_Size   = 'Mobile_Profile_Filter_Size';
 
-            $profile = new Diggin_Scraper_Process();
+            $profile = new Diggin_Scraper();
             $profile->process('/td[last()-3]/span', "device => RAW, $_Device")
                     ->process('/td[position()>=last()-2]/span[count(./img)=0]', "size[] => TEXT, $_Size");
             $scraper = new Diggin_Scraper();

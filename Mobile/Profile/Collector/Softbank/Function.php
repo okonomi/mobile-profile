@@ -1,6 +1,5 @@
 <?php
 require_once 'Diggin/Scraper.php';
-require_once 'Mobile/Profile/Adapter/Softbank/Attrstrip.php';
 
 
 class Mobile_Profile_Collector_Softbank_Function
@@ -13,7 +12,7 @@ class Mobile_Profile_Collector_Softbank_Function
             $_Model  = 'Mobile_Profile_Filter_Softbank_Model';
             $_String = 'Mobile_Profile_Filter_String';
 
-            $profile = new Diggin_Scraper_Process();
+            $profile = new Diggin_Scraper();
             $profile->process('td[1]', "model => TEXT, $_Model")
                     ->process('td[2]', "lcd => TEXT")
                     ->process('td[3]', "memory => TEXT")
@@ -24,9 +23,7 @@ class Mobile_Profile_Collector_Softbank_Function
                     ->process('td[8]', "highspeed => TEXT")
                     ->process('td[9]', "camera => TEXT");
             $scraper = new Diggin_Scraper();
-            $scraper->changeStrategy('Diggin_Scraper_Strategy_Flexible',
-                                     new Mobile_Profile_Adapter_Softbank_Attrstrip())
-                    ->process('//tr[@bgcolor="#FFFFFF"]', array('profile[]' => $profile))
+            $scraper->process('//tr[@bgcolor="#FFFFFF"]', array('profile[]' => $profile))
                     ->scrape($url);
         } catch (Exception $e) {
             throw $e;
@@ -37,7 +34,7 @@ class Mobile_Profile_Collector_Softbank_Function
         foreach ($scraper->profile as $profile) {
             $row = $profile;
 
-            $arr = explode('*', $profile['lcd']);
+            $arr = explode(' x ', $profile['lcd']);
             $row['lcd'] = array(
                 'width'  => $arr[0],
                 'height' => $arr[1],

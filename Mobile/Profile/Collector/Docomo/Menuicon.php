@@ -12,7 +12,7 @@ class Mobile_Profile_Collector_Docomo_Menuicon
             $_Device = 'Mobile_Profile_Filter_Docomo_Device';
             $_Size   = 'Mobile_Profile_Filter_Size';
 
-            $profile = new Diggin_Scraper_Process();
+            $profile = new Diggin_Scraper();
             $profile->process('/td[not(@class) and @rowspan="2"][last()-2]/span', "device => RAW, $_Device")
                     ->process('/td[not(@class) and not(@rowspan)][last()-1]', "size => TEXT, $_Size")
                     ->process('/td[not(@class) and @rowspan="2"][last()-1]/span', "item => TEXT")

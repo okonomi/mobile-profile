@@ -14,13 +14,20 @@ $result = $module->scrape();
 
 // いくつか抜き出してチェック
 $sample_data = array(
-    'LISMO Player &LISMO Port' => array(
-        'name'  => 'LISMO Player &LISMO Port',
+    'LISMO Player & LISMO Port' => array(
+        'name'  => 'LISMO Player & LISMO Port',
         'model' => array(
-            'W65T',
+            'Premier3',
+            'Woooケータイ H001',
+            'フルチェンケータイ T001',
+            'CA001',
+            'SH001',
+            'P001',
+            'Cyber-shot(TM)ケータイ S001',
             'Xmini',
+            'W65T',
             'W64T',
-            'AQUOSケータイW64SH',
+            'AQUOSケータイ W64SH',
             'W64SA',
             'Sportio',
             'W63SA',

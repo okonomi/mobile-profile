@@ -1,6 +1,5 @@
 <?php
 require_once 'Diggin/Scraper.php';
-require_once 'Mobile/Profile/Adapter/Softbank/Attrstrip.php';
 
 
 class Mobile_Profile_Collector_Softbank_Series
@@ -12,13 +11,11 @@ class Mobile_Profile_Collector_Softbank_Series
 
             $_Model = 'Mobile_Profile_Filter_Softbank_Model';
 
-            $profile = new Diggin_Scraper_Process();
+            $profile = new Diggin_Scraper();
             $profile->process('.', "color => @bgcolor")
                     ->process('td[1]', "cell => TEXT, $_Model");
             $scraper = new Diggin_Scraper();
-            $scraper->changeStrategy('Diggin_Scraper_Strategy_Flexible',
-                                     new Mobile_Profile_Adapter_Softbank_Attrstrip())
-                    ->process('//tr[@bgcolor="#CCCCCC" or @bgcolor="#FFFFFF"]', array('profile[]' => $profile))
+            $scraper->process('//tr[@bgcolor="#CCCCCC" or @bgcolor="#FFFFFF"]', array('profile[]' => $profile))
                     ->scrape($url);
         } catch (Exception $e) {
             throw $e;

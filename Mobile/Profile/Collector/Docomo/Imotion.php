@@ -11,12 +11,12 @@ class Mobile_Profile_Collector_Docomo_Imotion
 
             $_Device = 'Mobile_Profile_Filter_Docomo_Device';
 
-            $profile = new Diggin_Scraper_Process();
+            $profile = new Diggin_Scraper();
             $profile->process('/td[not(@scope)][1]/span', "device => RAW, $_Device")
                     ->process('/td[not(@scope)][2]/span', "filesize => TEXT")
                     ->process('/td[not(@scope)][3]/img', "telop => @alt")
                     ->process('/td[not(@scope)][4]/img', "3d => @alt");
-            $section = new Diggin_Scraper_Process();
+            $section = new Diggin_Scraper();
             $section->process('div.titlept01 a', "version => TEXT")
                     ->process('//table/tr', array('profile[]' => $profile));
             $scraper = new Diggin_Scraper();

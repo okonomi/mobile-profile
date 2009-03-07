@@ -11,13 +11,13 @@ class Mobile_Profile_Collector_Au_Basic
 
             $_Size = 'Mobile_Profile_Filter_Size';
 
-            $format = new Diggin_Scraper_Process();
+            $format = new Diggin_Scraper();
             $format->process('/td[7]', "gif => TEXT")
                    ->process('/td[8]', "jpeg => TEXT")
                    ->process('/td[9]', "png => TEXT")
                    ->process('/td[10]', "bmp4 => TEXT")
                    ->process('/td[11]', "bmp2 => TEXT");
-            $profile = new Diggin_Scraper_Process();
+            $profile = new Diggin_Scraper();
             $profile->process('/td[1]', "model => TEXT")
                     ->process('/td[2]', "browser_type => TEXT")
                     ->process('/td[3]', "color => TEXT")

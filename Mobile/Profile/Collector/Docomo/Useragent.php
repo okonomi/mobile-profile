@@ -11,12 +11,12 @@ class Mobile_Profile_Collector_Docomo_Useragent
 
             $_Device = 'Mobile_Profile_Filter_Docomo_Device';
 
-            $profile = new Diggin_Scraper_Process();
+            $profile = new Diggin_Scraper();
             $profile->process('/td[@class="brownLight acenter middle"]', "header => TEXT")
                     ->process('/td[not(@scope) and @class="acenter middle"]', "series => TEXT")
                     ->process('/td[not(@scope) and not(@class="acenter middle")][1]/span', "device => RAW, $_Device")
                     ->process('/td[not(@scope)][count(img)=0][last()]', "ua => TEXT");
-            $section = new Diggin_Scraper_Process();
+            $section = new Diggin_Scraper();
             $section->process('div.titlept01 a', "version => TEXT")
                     ->process('//table/tr', array('profile[]' => $profile));
             $scraper = new Diggin_Scraper();
