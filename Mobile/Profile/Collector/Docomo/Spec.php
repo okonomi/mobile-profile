@@ -162,6 +162,8 @@ class Mobile_Profile_Collector_Docomo_Spec
             if ($data[0] === 'FOMA') {
                 array_shift($data);
                 array_shift($data);
+            } elseif ( preg_match('/^\d{3}i?$/', $data[0])) {
+                array_shift($data);
             }
 
             if (preg_match('/^[A-Z]{1,2}\-?\d+/iu', $data[0])) {
@@ -194,8 +196,6 @@ class Mobile_Profile_Collector_Docomo_Spec
                 ) + $spec;
             }
         }
-
-        mb_regex_encoding($_encoding);
 
 
         return $imode_spec;
