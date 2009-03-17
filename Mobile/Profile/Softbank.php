@@ -1,8 +1,8 @@
 <?php
-require_once 'Mobile/Profile/Collector/Abstract.php';
+require_once 'Mobile/Profile/Abstract.php';
 
 
-class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector_Abstract
+class Mobile_Profile_Softbank extends Mobile_Profile_Abstract
 {
     protected function _correctProfile()
     {
@@ -99,8 +99,8 @@ class Mobile_Profile_Collector_Softbank extends Mobile_Profile_Collector_Abstrac
     {
         $name = ucfirst(strtolower($name));
 
-        $filename  = 'Mobile/Profile/Collector/Softbank/'.$name.'.php';
-        $classname = 'Mobile_Profile_Collector_Softbank_'.$name;
+        $filename  = 'Mobile/Profile/Softbank/'.$name.'.php';
+        $classname = 'Mobile_Profile_Softbank_'.$name;
 
         require_once $filename;
         $component = new $classname();

@@ -2,7 +2,7 @@
 require_once 'Diggin/Scraper.php';
 
 
-class Mobile_Profile_Collector_Au_Java
+class Mobile_Profile_Au_Java
 {
     public function scrape()
     {

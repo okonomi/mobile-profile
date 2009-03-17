@@ -2,7 +2,7 @@
 require_once 'Diggin/Scraper.php';
 
 
-class Mobile_Profile_Collector_Au_Deviceid
+class Mobile_Profile_Au_Deviceid
 {
     public function scrape()
     {
@@ -25,9 +25,17 @@ class Mobile_Profile_Collector_Au_Deviceid
                 'deviceid' => $scraper->deviceid[$i],
             );
 
-            $result[] = $row;
+            if ($row['deviceid'] === 'CA23') {
+                $row['model'] = 'A5401CA/CA II';
+            } elseif ($row['deviceid'] === 'TS25') {
+                if (!preg_match('/カメラ/', $row['model'])) {
+                    $row['model'] = 'A1304T/T II';
+                }
+            }
+
+            $result[$row['model']] = $row;
         }
 
-        return $result;
+        return array_values($result);
     }
 }

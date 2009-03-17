@@ -12,8 +12,8 @@ class Mobile_Profile
     {
         $carrier = ucfirst(strtolower($carrier));
 
-        $include_file = 'Mobile/Profile/Collector/'.$carrier.'.php';
-        $class_name   = 'Mobile_Profile_Collector_'.$carrier;
+        $include_file = 'Mobile/Profile/'.$carrier.'.php';
+        $class_name   = 'Mobile_Profile_'.$carrier;
 
         include_once $include_file;
         $module = new $class_name($options);

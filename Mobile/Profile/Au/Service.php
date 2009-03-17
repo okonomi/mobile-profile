@@ -5,7 +5,7 @@ require_once 'Zend/Http/Client/Adapter/Test.php';
 require_once 'Mobile/Profile/Util.php';
 
 
-class Mobile_Profile_Collector_Au_Service
+class Mobile_Profile_Au_Service
 {
     public function scrape()
     {

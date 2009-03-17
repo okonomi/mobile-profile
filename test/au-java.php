@@ -4,12 +4,12 @@ define('BASE', dirname(__FILE__));
 set_include_path(dirname(BASE).PATH_SEPARATOR.get_include_path());
 
 require_once BASE.'/t/lime.php';
-require_once 'Mobile/Profile/Collector/Au/Java.php';
+require_once 'Mobile/Profile/Au/Java.php';
 
 
 $lime = new lime_test();
 
-$module = new Mobile_Profile_Collector_Au_Java();
+$module = new Mobile_Profile_Au_Java();
 $result = $module->scrape();
 
 // いくつか抜き出してチェック

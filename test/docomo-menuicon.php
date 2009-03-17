@@ -4,12 +4,12 @@ define('BASE', dirname(__FILE__));
 set_include_path(dirname(BASE).PATH_SEPARATOR.get_include_path());
 
 require_once BASE.'/t/lime.php';
-require_once 'Mobile/Profile/Collector/Docomo/Menuicon.php';
+require_once 'Mobile/Profile/Docomo/Menuicon.php';
 
 
 $lime = new lime_test();
 
-$module = new Mobile_Profile_Collector_Docomo_Menuicon();
+$module = new Mobile_Profile_Docomo_Menuicon();
 $result = $module->scrape();
 
 // いくつか抜き出してチェック

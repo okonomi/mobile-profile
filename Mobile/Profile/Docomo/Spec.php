@@ -2,7 +2,7 @@
 require_once 'HTTP/Request2.php';
 
 
-class Mobile_Profile_Collector_Docomo_Spec
+class Mobile_Profile_Docomo_Spec
 {
     public function scrape()
     {

@@ -4,12 +4,12 @@ define('BASE', dirname(__FILE__));
 set_include_path(dirname(BASE).PATH_SEPARATOR.get_include_path());
 
 require_once BASE.'/t/lime.php';
-require_once 'Mobile/Profile/Collector/Softbank/Service.php';
+require_once 'Mobile/Profile/Softbank/Service.php';
 
 
 $lime = new lime_test();
 
-$module = new Mobile_Profile_Collector_Softbank_Service();
+$module = new Mobile_Profile_Softbank_Service();
 $result = $module->scrape();
 
 // いくつか抜き出してチェック

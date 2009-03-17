@@ -2,7 +2,7 @@
 require_once 'Diggin/Scraper.php';
 
 
-class Mobile_Profile_Collector_Softbank_Useragent
+class Mobile_Profile_Softbank_Useragent
 {
     public function scrape()
     {

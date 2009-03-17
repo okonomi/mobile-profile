@@ -1,8 +1,8 @@
 <?php
-require_once 'Mobile/Profile/Collector/Abstract.php';
+require_once 'Mobile/Profile/Abstract.php';
 
 
-class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector_Abstract
+class Mobile_Profile_Docomo extends Mobile_Profile_Abstract
 {
     protected function _correctProfile()
     {
@@ -178,8 +178,8 @@ class Mobile_Profile_Collector_Docomo extends Mobile_Profile_Collector_Abstract
     {
         $name = ucfirst(strtolower($name));
 
-        $filename  = 'Mobile/Profile/Collector/Docomo/'.$name.'.php';
-        $classname = 'Mobile_Profile_Collector_Docomo_'.$name;
+        $filename  = 'Mobile/Profile/Docomo/'.$name.'.php';
+        $classname = 'Mobile_Profile_Docomo_'.$name;
 
         require_once $filename;
         $component = new $classname();

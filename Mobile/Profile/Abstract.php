@@ -2,7 +2,7 @@
 require_once 'Mobile/Profile/Info.php';
 
 
-abstract class Mobile_Profile_Collector_Abstract
+abstract class Mobile_Profile_Abstract
 {
     protected $info_data = array();
 

@@ -2,21 +2,12 @@
 require_once 'Mobile/Profile/Collector/Abstract.php';
 
 
-class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector_Abstract
+class Mobile_Profile_Au extends Mobile_Profile_Abstract
 {
     protected function _correctProfile()
     {
         $result = $this->_getScrape('deviceid');
         foreach ($result as $row) {
-            if ($row['deviceid'] === 'CA23') {
-                $row['model'] = 'A5401CA/CA II';
-            } elseif ($row['deviceid'] === 'TS25') {
-                if (!preg_match('/カメラ/', $row['model'])) {
-                    $row['model'] = 'A1304T/T II';
-                }
-            } else {
-                $row['model'] = preg_replace('/\s?カメラなしモデル/', 'カメラ無し', $row['model']);
-            }
             $info =& $this->_getProfileInfo($row['model']);
 
             // 機種名
@@ -37,8 +28,6 @@ class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector_Abstract
 
         $result = $this->_getScrape('basic');
         foreach ($result as $row) {
-            $row['model'] = preg_replace('/\s?カメラなしモデル/', 'カメラ無し', $row['model']);
-
             $info =& $this->_getProfileInfo($row['model'], false);
             if (is_null($info)) {
                 continue;
@@ -133,8 +122,8 @@ class Mobile_Profile_Collector_Au extends Mobile_Profile_Collector_Abstract
     {
         $name = ucfirst(strtolower($name));
 
-        $filename  = 'Mobile/Profile/Collector/Au/'.$name.'.php';
-        $classname = 'Mobile_Profile_Collector_Au_'.$name;
+        $filename  = 'Mobile/Profile/Au/'.$name.'.php';
+        $classname = 'Mobile_Profile_Au_'.$name;
 
         require_once $filename;
         $component = new $classname();

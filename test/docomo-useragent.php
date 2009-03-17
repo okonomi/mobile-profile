@@ -4,12 +4,12 @@ define('BASE', dirname(__FILE__));
 set_include_path(dirname(BASE).PATH_SEPARATOR.get_include_path());
 
 require_once BASE.'/t/lime.php';
-require_once 'Mobile/Profile/Collector/Docomo/Useragent.php';
+require_once 'Mobile/Profile/Docomo/Useragent.php';
 
 
 $lime = new lime_test();
 
-$module = new Mobile_Profile_Collector_Docomo_Useragent();
+$module = new Mobile_Profile_Docomo_Useragent();
 $result = $module->scrape();
 
 // いくつか抜き出してチェック

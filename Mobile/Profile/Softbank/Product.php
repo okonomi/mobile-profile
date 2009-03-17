@@ -2,7 +2,7 @@
 require_once 'HTTP/Request2.php';
 
 
-class Mobile_Profile_Collector_Softbank_Product
+class Mobile_Profile_Softbank_Product
 {
     public function scrape()
     {

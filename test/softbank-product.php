@@ -4,12 +4,12 @@ define('BASE', dirname(__FILE__));
 set_include_path(dirname(BASE).PATH_SEPARATOR.get_include_path());
 
 require_once BASE.'/t/lime.php';
-require_once 'Mobile/Profile/Collector/Softbank/Product.php';
+require_once 'Mobile/Profile/Softbank/Product.php';
 
 
 $lime = new lime_test();
 
-$module = new Mobile_Profile_Collector_Softbank_Product();
+$module = new Mobile_Profile_Softbank_Product();
 $result = $module->scrape();
 
 // いくつか抜き出してチェック
@@ -29,7 +29,7 @@ $sample_data = array(
             '932SH', '931SH', '930CA', '930P', '930SC', '930SH', '923SH', '922SH', '921P', '921SH', '921T',
             '920P', '920SC', '920SH', '920SH YK', '920T', '913SH', '913SH G', '912SH', '912T', '911SH', '911T',
             '910SH', '910T', '905SH', '904SH', '904T',
-            '831P', '831SH', '831T', '830CA', '830N', '830P', '830SH', '830SH s', '830SH for Biz', '830T',
+            '831P', '831SH', '831SH KT', '831T', '830CA', '830N', '830P', '830SH', '830SH s', '830SH for Biz', '830T',
             '825SH', '824P', '824SH Active Line', '824SH Elegant Line', '824T',
             '823P', '823SH', '823T', '822P', '822SH', '822T', '821P', '821SC', '821SH', '821T',
             '820P', '820SC', '820SH', '816SH', '815SH', '815T', '815T PB', '814SH', '814T',

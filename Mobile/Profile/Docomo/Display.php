@@ -2,7 +2,7 @@
 require_once 'Diggin/Scraper.php';
 
 
-class Mobile_Profile_Collector_Docomo_Display
+class Mobile_Profile_Docomo_Display
 {
     public function scrape()
     {
