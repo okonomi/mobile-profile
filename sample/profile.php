@@ -6,8 +6,8 @@ require_once 'Mobile/Profile.php';
 
 
 $carrier = $argv[1];
-$format  = $argv[2];
+
 
 $profile = & new Mobile_Profile();
-$result = $profile->get($carrier)->output($format);
+$result = $profile->get($carrier);
 print_r($result);
