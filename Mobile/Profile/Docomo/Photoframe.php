@@ -1,10 +1,11 @@
 <?php
+require_once 'Mobile/Profile/Docomo/Abstract.php';
 require_once 'Diggin/Scraper.php';
 
 
-class Mobile_Profile_Docomo_Photoframe
+class Mobile_Profile_Docomo_Photoframe extends Mobile_Profile_Docomo_Abstract
 {
-    public function scrape()
+    public function collect()
     {
         try {
             $url = 'http://www.nttdocomo.co.jp/service/imode/make/content/spec/frame_size/index.html';

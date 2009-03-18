@@ -10,7 +10,7 @@ require_once 'Mobile/Profile/Docomo/Display.php';
 $lime = new lime_test();
 
 $module = new Mobile_Profile_Docomo_Display();
-$result = $module->scrape();
+$result = $module->collect();
 
 // いくつか抜き出してチェック
 $sample_data = array(

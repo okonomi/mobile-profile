@@ -8,5 +8,5 @@ $filename = str_replace('_', '/', $class).'.php';
 require_once $filename;
 
 $module = new $class();
-$result = $module->scrape();
+$result = $module->collect();
 print_r($result);

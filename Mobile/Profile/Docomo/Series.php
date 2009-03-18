@@ -1,10 +1,11 @@
 <?php
+require_once 'Mobile/Profile/Docomo/Abstract.php';
 require_once 'Diggin/Scraper.php';
 
 
-class Mobile_Profile_Docomo_Series
+class Mobile_Profile_Docomo_Series extends Mobile_Profile_Docomo_Abstract
 {
-    public function scrape()
+    public function collect()
     {
         $url_base = 'http://www.nttdocomo.co.jp/';
         $url_list = array(

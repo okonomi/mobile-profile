@@ -10,7 +10,7 @@ require_once 'Mobile/Profile/Au/Basic.php';
 $lime = new lime_test();
 
 $module = new Mobile_Profile_Au_Basic();
-$result = $module->scrape();
+$result = $module->collect();
 
 // いくつか抜き出してチェック
 $sample_data = array(

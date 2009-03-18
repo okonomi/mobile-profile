@@ -1,10 +1,11 @@
 <?php
+require_once 'Mobile/Profile/Softbank/Abstract.php';
 require_once 'HTTP/Request2.php';
 
 
-class Mobile_Profile_Softbank_Product
+class Mobile_Profile_Softbank_Product extends Mobile_Profile_Softbank_Abstract
 {
-    public function scrape()
+    public function collect()
     {
         try {
             // 機種一覧

@@ -127,7 +127,7 @@ class Mobile_Profile_Au extends Mobile_Profile_Abstract
 
         require_once $filename;
         $component = new $classname();
-        $result = $component->scrape();
+        $result = $component->collect();
 
         return $result;
     }

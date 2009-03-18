@@ -10,7 +10,7 @@ require_once 'Mobile/Profile/Softbank/Useragent.php';
 $lime = new lime_test();
 
 $module = new Mobile_Profile_Softbank_Useragent();
-$result = $module->scrape();
+$result = $module->collect();
 
 // いくつか抜き出してチェック
 $sample_data = array(

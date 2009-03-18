@@ -1,13 +1,14 @@
 <?php
+require_once 'Mobile/Profile/Au/Abstract.php';
 require_once 'Diggin/Scraper.php';
 require_once 'Zend/Http/Client.php';
 require_once 'Zend/Http/Client/Adapter/Test.php';
 require_once 'Mobile/Profile/Util.php';
 
 
-class Mobile_Profile_Au_Service
+class Mobile_Profile_Au_Service extends Mobile_Profile_Au_Abstract
 {
-    public function scrape()
+    public function collect()
     {
         // サービスカテゴリのURLを取得
         try {

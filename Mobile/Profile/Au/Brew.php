@@ -1,10 +1,11 @@
 <?php
+require_once 'Mobile/Profile/Au/Abstract.php';
 require_once 'Diggin/Scraper.php';
 
 
-class Mobile_Profile_Au_Brew
+class Mobile_Profile_Au_Brew extends Mobile_Profile_Au_Abstract
 {
-    public function scrape()
+    public function collect()
     {
         try {
             $url = 'http://www.au.kddi.com/ezfactory/service/brew.html';

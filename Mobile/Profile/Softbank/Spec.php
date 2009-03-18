@@ -1,13 +1,14 @@
 <?php
+require_once 'Mobile/Profile/Softbank/Abstract.php';
 require_once 'HTTP/Request2.php';
 
 
-class Mobile_Profile_Softbank_Spec
+class Mobile_Profile_Softbank_Spec extends Mobile_Profile_Softbank_Abstract
 {
     protected $options = array();
 
 
-    public function scrape()
+    public function collect()
     {
         $csv   = self::_getDeviceSpecList();
         $csv   = mb_convert_encoding($csv, 'UTF-8', 'sjis-win');

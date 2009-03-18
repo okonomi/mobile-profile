@@ -1,10 +1,11 @@
 <?php
+require_once 'Mobile/Profile/Au/Abstract.php';
 require_once 'Diggin/Scraper.php';
 
 
-class Mobile_Profile_Au_Basic
+class Mobile_Profile_Au_Basic extends Mobile_Profile_Au_Abstract
 {
-    public function scrape()
+    public function collect()
     {
         try {
             $url = 'http://www.au.kddi.com/ezfactory/tec/spec/new_win/ezkishu.html';

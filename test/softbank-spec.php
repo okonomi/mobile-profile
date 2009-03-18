@@ -12,7 +12,7 @@ $lime = new lime_test();
 $module = new Mobile_Profile_Softbank_Spec();
 
 try {
-    $module->scrape();
+    $module->collect();
 
     $lime->fail();
 } catch (Exception $e) {

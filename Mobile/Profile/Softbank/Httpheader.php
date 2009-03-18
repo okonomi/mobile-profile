@@ -1,10 +1,11 @@
 <?php
+require_once 'Mobile/Profile/Softbank/Abstract.php';
 require_once 'Diggin/Scraper.php';
 
 
-class Mobile_Profile_Softbank_Httpheader
+class Mobile_Profile_Softbank_Httpheader extends Mobile_Profile_Softbank_Abstract
 {
-    public function scrape()
+    public function collect()
     {
         try {
             $url = 'http://creation.mb.softbank.jp/terminal/?lup=y&cat=http';

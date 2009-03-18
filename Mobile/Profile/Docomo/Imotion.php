@@ -1,10 +1,11 @@
 <?php
+require_once 'Mobile/Profile/Docomo/Abstract.php';
 require_once 'Diggin/Scraper.php';
 
 
-class Mobile_Profile_Docomo_Imotion
+class Mobile_Profile_Docomo_Imotion extends Mobile_Profile_Docomo_Abstract
 {
-    public function scrape()
+    public function collect()
     {
         try {
             $url = 'http://www.nttdocomo.co.jp/service/imode/make/content/spec/imotion/index.html';

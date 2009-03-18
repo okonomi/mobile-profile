@@ -10,7 +10,7 @@ require_once 'Mobile/Profile/Au/Deviceid.php';
 $lime = new lime_test();
 
 $module = new Mobile_Profile_Au_Deviceid();
-$result = $module->scrape();
+$result = $module->collect();
 
 // いくつか抜き出してチェック
 $sample_data = array(
