@@ -10,6 +10,6 @@ class Mobile_Profile_Au_ServiceTest extends PHPUnit_Framework_TestCase
     public function testCorrect()
     {
         $correcter = new Mobile_Profile_Au_Service();
-        var_dump($correcter->collect());
+        print_r($correcter->collect());
     }
 }

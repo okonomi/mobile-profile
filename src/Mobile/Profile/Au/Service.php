@@ -10,96 +10,80 @@ class Mobile_Profile_Au_Service extends Mobile_Profile_Au_Abstract
 {
     public function collect()
     {
-        // サービスカテゴリのURLを取得
-        try {
-            $url = 'http://www.au.kddi.com/service/index.html';
-
-            $scraper = new Diggin_Scraper();
-            $scraper->process('p.contentsBoxTitle a', "url[] => @href")
-                    ->scrape($url);
-        } catch (Exception $e) {
-            throw $e;
-        }
-
-        $urls = array();
-        foreach ($scraper->url as $url) {
-            $urls[] = preg_replace('/^'.preg_quote('http://www.au.kddi.com', '/').'/', '', $url);
-        }
-        $pages = Mobile_Profile_Util::parallelRequest('www.au.kddi.com', $urls);
-
+        $pages = $this->_getServiceTaiouPages();
 
         $adapter = new Zend_Http_Client_Adapter_Test();
         $client  = new Zend_Http_Client();
         $client->setAdapter($adapter);
         Diggin_Scraper::setHttpClient($client);
 
-        $urls = array();
-        foreach ($pages as $page) {
-            // 各サービスのURLを取得
-            try {
-                $adapter->setResponse($page);
-
-                $scraper = new Diggin_Scraper();
-                $scraper->process('div.contentsBoxCols3 p.contentsBoxTitle a', "url[] => @href")
-                        ->scrape('http://www.au.kddi.com/');
-            } catch (Exception $e) {
-                continue;
-            }
-
-            foreach ($scraper->url as $url) {
-                $urls[] = preg_replace('/^'.preg_quote('http://www.au.kddi.com', '/').'/', '', $url);
-            }
-        }
-        $pages = Mobile_Profile_Util::parallelRequest('www.au.kddi.com', $urls);
-
-        // サービスのページからサービスIDを割り出す
-        $serviceid_list = array();
-        foreach ($pages as $page) {
-            try {
-                $adapter->setResponse($page);
-
-                $scraper = new Diggin_Scraper();
-                $scraper->process('//div[@id="secondaryArea"]//a[starts-with(@href, "/cgi-bin")]',
-                                  "serviceid[] => @href, Digits")
-                        ->scrape('http://www.au.kddi.com/');
-
-                $serviceid_list = array_merge($serviceid_list, $scraper->serviceid);
-            } catch (Exception $e) {
-                continue;
-            }
-        }
-
-        $urls = array();
-        foreach ($serviceid_list as $serviceid) {
-            $urls[] = sprintf('/cgi-bin/modellist/allList.cgi?ServiceID=%d', $serviceid);
-        }
-        $pages = Mobile_Profile_Util::parallelRequest('www.au.kddi.com', $urls);
-
-
         $result = array();
         foreach ($pages as $page) {
             try {
-                $adapter->setResponse($page);
-
-                $scraper = new Diggin_Scraper();
-                $scraper->process('h1', "service => TEXT")
-                        ->process('//table//td', "models => TEXT")
-                        ->scrape('http://www.au.kddi.com/');
+                $ret = $this->_getServiceModels($page);
             } catch (Exception $e) {
                 continue;
             }
 
-            $row = array();
-
-            preg_match('/「(.*)」対応機種/', $scraper->service, $match);
-
-            $row['name']  = $match[1];
-            $row['model'] = mb_split('\s*,\s*', $scraper->models);
-
-            $result[] = $row;
+            for ($i = 0; $i < count($ret['names']); $i++) {
+                $result[] = array(
+                    'name'  => $ret['names'][$i],
+                    'model' => $ret['models'][$i]['models'],
+                );
+            }
         }
+
+        // 元に戻す(必要?)
+        Diggin_Scraper::setHttpClient(new Zend_Http_Client());
 
 
         return $result;
+    }
+
+    protected function _getServiceTaiouPages()
+    {
+        try {
+            $url = 'http://www.au.kddi.com/service/list.html';
+
+            $scraper = new Diggin_Scraper();
+            $scraper->process('ul.linkListHorizontal li a', "url[] => @href")
+                    ->scrape($url);
+        } catch (Diggin_Scraper_Exception $e) {
+            throw $e;
+        }
+
+        $urls = array();
+        foreach ($scraper->url as $url) {
+            $url = preg_replace('!^http://www.au.kddi.com!', '', $url);
+            $url = preg_replace('!index.html$!', 'taiou.html', $url);
+
+            $urls[] = $url;
+        }
+        $pages = Mobile_Profile_Util::parallelRequest('www.au.kddi.com', $urls);
+
+
+        return $pages;
+    }
+
+    protected function _getServiceModels($page)
+    {
+        try {
+            Diggin_Scraper::getHttpClient()->getAdapter()->setResponse($page);
+
+
+            $url = 'http://www.au.kddi.com/';
+
+            $models = new Diggin_Scraper();
+            $models->process('li', "models[] => TEXT");
+
+            $scraper = new Diggin_Scraper();
+            $scraper->process('h3', "names[] => TEXT")
+                    ->process('//div[@class="contentsBox"]', array("models[]" => $models))
+                    ->scrape($url);
+        } catch (Diggin_Scraper_Exception $e) {
+            throw $e;
+        }
+
+        return $scraper->getResults();
     }
 }
